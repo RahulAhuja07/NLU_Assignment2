@@ -1,0 +1,23 @@
+[
+  {
+    "model": "Vanilla_RNN",
+    "novelty_rate": 39.0,
+    "diversity": 90.0,
+    "total": 200,
+    "unique": 180
+  },
+  {
+    "model": "BLSTM",
+    "novelty_rate": 100.0,
+    "diversity": 98.88268156424581,
+    "total": 179,
+    "unique": 177
+  },
+  {
+    "model": "RNN_Attention",
+    "novelty_rate": 39.0,
+    "diversity": 88.0,
+    "total": 200,
+    "unique": 176
+  }
+]

@@ -1,0 +1,117 @@
+======================================================================
+Task-3: Qualitative Analysis
+======================================================================
+
+1. REALISM: Do generated names look like real Indian names?
+   - Good models produce names with typical syllable patterns (consonant-vowel)
+   - Realistic names: Aarav, Priya, Rajesh, Kavya, etc.
+
+2. COMMON FAILURE MODES:
+   - Repetition: same substring repeated (e.g., rarara...)
+   - Too short or too long names
+   - Invalid character combinations or unpronounceable strings
+   - Memorization: exact copies from training set
+
+3. SAMPLE OUTPUTS BY MODEL:
+
+----------------------------------------------------------------------
+Vanilla RNN (first 30 unique):
+----------------------------------------------------------------------
+  Charanveer
+  Charita
+  Tapanraj
+  Anishwar
+  Wasiday
+  Minesh
+  Zeeshantraj
+  Lavantan
+  Subhana
+  Lalitashree
+  Mridul
+  Omkarraj
+  Kamalraj
+  Zoya
+  Bhavees
+  Farshan
+  Umpal
+  Jaya
+  Utkarsh
+  Lalita
+  Wauday
+  Veena
+  Varun
+  Parishree
+  Prateeka
+  Layal
+  Chairav
+  Renu
+  Trilti
+  Lalit
+
+----------------------------------------------------------------------
+BLSTM (first 30 unique):
+----------------------------------------------------------------------
+  Witt
+  Fwxit
+  Idre
+  Vviy
+  Oddw
+  Dokv
+  Vivv
+  Qisw
+  Wfwo
+  Puul
+  Qhup
+  Pyul
+  Hupy
+  Hisw
+  Ghvi
+  Frim
+  Roll
+  Xitr
+  Ravi
+  Llxi
+  Swav
+  Zway
+  Ygosa
+  Pakk
+  Wmag
+  Pwoop
+  Havv
+  Poup
+  Friik
+  Nivil
+
+----------------------------------------------------------------------
+RNN with Attention (first 30 unique):
+----------------------------------------------------------------------
+  Nupas
+  Indranal
+  Wanav
+  Darsh
+  Ishaat
+  Ishwar
+  Xmayan
+  Tejas
+  Yamini
+  Eeshashree
+  Eesha
+  Vimal
+  Bhavesh
+  Nandeep
+  Rithanraj
+  Manthanraj
+  Pragyat
+  Zeeshan
+  Falguni
+  Lekha
+  Tanit
+  Qamar
+  Prarthana
+  Dharam
+  Wagin
+  Jagrutishree
+  Falana
+  Charan
+  Qudranshu
+  Pranav
