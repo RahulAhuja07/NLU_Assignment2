@@ -1,8 +1,6 @@
-"""
-Problem 2: Character-Level Name Generation using RNN Variants
-Implements from scratch: Vanilla RNN, BLSTM, RNN with Attention.
-Uses PyTorch. Trained on Indian names from TrainingNames.txt.
-"""
+#B23CH1037
+#Rahul Ahuja
+#importing all the necessary libraries
 import os
 import json
 import numpy as np
@@ -11,37 +9,25 @@ import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 import matplotlib.pyplot as plt
 
-# ---------------------------------------------------------------------------
-# CONFIGURATION
-# ---------------------------------------------------------------------------
-DATA_PATH = "TrainingNames.txt"
-BATCH_SIZE = 64
-HIDDEN_SIZE = 128
-EMBED_SIZE = 32
-NUM_LAYERS = 2
-LEARNING_RATE = 0.003
-EPOCHS = int(os.environ.get("Q2_EPOCHS", 40))
-MAX_NAME_LEN = 20
-GEN_NAMES_PER_MODEL = 200
-TEMPERATURES = [0.5, 0.8, 1.0, 1.2, 1.5]
 
-# Special tokens (PAD must be index 0 for padding in batches)
-PAD = "\0"
-EOS = "."
+DATA_PATH = "TrainingNames.txt" #path to the training names file
+BATCH_SIZE = 64 #batch size
+HIDDEN_SIZE = 128 #hidden size
+EMBED_SIZE = 32 #embedding size
+NUM_LAYERS = 2 #number of layers
+LEARNING_RATE = 0.003 #learning rate
+EPOCHS = int(os.environ.get("Q2_EPOCHS", 40)) #number of epochs
+MAX_NAME_LEN = 20 #maximum name length
+GEN_NAMES_PER_MODEL = 200 #number of names to generate per model
+TEMPERATURES = [0.5, 0.8, 1.0, 1.2, 1.5] #temperatures to test
 
 
-# ---------------------------------------------------------------------------
-# DATASET
-# ---------------------------------------------------------------------------
 class NameDataset(Dataset):
-    """
-    Character-level dataset. Each name is a sequence of character indices.
-    Target: predict next character. We append EOS to mark end of name.
-    """
+    #class to load the training names file
     def __init__(self, filepath):
         self.names = self._load(filepath)
         chars = sorted(set("".join(self.names) + EOS))
-        # PAD at 0 for batch padding; Embedding uses padding_idx=0
+        # PAD at 0 for batch padding;
         self.char2idx = {PAD: 0}
         for i, c in enumerate(chars):
             self.char2idx[c] = i + 1
@@ -49,7 +35,7 @@ class NameDataset(Dataset):
         self.vocab_size = len(self.char2idx)
         self.pad_idx = 0
 
-    def _load(self, filepath):
+    def _load(self, filepath):#function to load the training names file from the given path
         names = []
         candidates = [
             filepath,
@@ -63,113 +49,96 @@ class NameDataset(Dataset):
                 break
         if path is None:
             raise FileNotFoundError(
-                "TrainingNames.txt not found. Place it in Ques_2/ with one Indian name per line."
+                "TrainingNames.txt not found."#check for if the file is present
             )
+        #open the file and read the names
         with open(path, "r", encoding="utf-8") as f:
             for line in f:
                 name = line.strip().lower()
                 if name and name.isalpha():
-                    names.append(name)
+                    names.append(name)#append the names to the list
         return names
 
-    def __len__(self):
+    def __len__(self):#function to return the length of the dataset
         return len(self.names)
 
     def __getitem__(self, i):
         name = self.names[i] + EOS
         ids = [self.char2idx[c] for c in name]
-        x = torch.tensor(ids[:-1], dtype=torch.long)
-        y = torch.tensor(ids[1:], dtype=torch.long)
+        x = torch.tensor(ids[:-1], dtype=torch.long)#convert the ids to a tensor
+        y = torch.tensor(ids[1:], dtype=torch.long)#convert the ids to a tensor
         return x, y
 
 
 def collate_pad(batch):
-    """Pad sequences to same length. PAD index 0 for x; -100 for y (ignored in loss)."""
+    #function to pad the sequences to the same length
     xs, ys = zip(*batch)
-    xs = nn.utils.rnn.pad_sequence(xs, batch_first=True, padding_value=0)
-    ys = nn.utils.rnn.pad_sequence(ys, batch_first=True, padding_value=-100)
+    xs = nn.utils.rnn.pad_sequence(xs, batch_first=True, pad_value=0)
+    ys = nn.utils.rnn.pad_sequence(ys, batch_first=True, pad_value=-100)
     return xs, ys
 
 
-# ---------------------------------------------------------------------------
-# 1. VANILLA RNN
-# ---------------------------------------------------------------------------
-class VanillaRNN(nn.Module):
-    """
-    Vanilla Recurrent Neural Network.
-    Architecture: Embedding -> Multi-layer RNN -> Linear -> Vocab logits.
-    """
-    def __init__(self, vocab_size, embed_size=32, hidden_size=128, num_layers=2, dropout=0.2):
-        super().__init__()
-        self.embed = nn.Embedding(vocab_size, embed_size, padding_idx=0)
-        self.rnn = nn.RNN(embed_size, hidden_size, num_layers, batch_first=True, dropout=dropout)
-        self.fc = nn.Linear(hidden_size, vocab_size)
-
-    def forward(self, x, hidden=None):
-        emb = self.embed(x)
-        out, h = self.rnn(emb, hidden)
-        logits = self.fc(out)
-        return logits, h
-
-
-# ---------------------------------------------------------------------------
-# 2. BIDIRECTIONAL LSTM (BLSTM)
-# ---------------------------------------------------------------------------
+#BLSTM model
 class BLSTM(nn.Module):
-    """
-    Bidirectional LSTM. Processes sequence both forward and backward.
-    For generation: we pass the prefix each step; backward sees reversed prefix.
-    """
+    #class to initialize the BLSTM model with parameters as vocab_size, embed_size, hidden_size, num_layers and dropout
     def __init__(self, vocab_size, embed_size=32, hidden_size=128, num_layers=2, dropout=0.2):
         super().__init__()
-        self.embed = nn.Embedding(vocab_size, embed_size, padding_idx=0)
+        self.embed = nn.Embedding(vocab_size, embed_size, padding_idx=0)#embedding layer to convert the input ids to embeddings
         self.lstm = nn.LSTM(
             embed_size, hidden_size, num_layers,
             batch_first=True, bidirectional=True, dropout=dropout
-        )
-        self.fc = nn.Linear(hidden_size * 2, vocab_size)
+        )#LSTM layer to process the input sequence
+        self.fc = nn.Linear(hidden_size * 2, vocab_size)#linear layer to convert the hidden state to logits
 
-    def forward(self, x, hidden=None):
+    def forward(self, x, hidden=None):#function to forward the input through the model
         emb = self.embed(x)
-        out, h = self.lstm(emb, hidden)
+        out, h = self.lstm(emb, hidden)#process the input sequence through the LSTM layer
         logits = self.fc(out)
+        return logits, h#convert the hidden state to logits
+
+
+#Vanilla RNN model
+class VanillaRNN(nn.Module):
+    def __init__(self, vocab_size, embed_size=32, hidden_size=128, num_layers=2, dropout=0.2):#function to initialize the Vanilla RNN model with parameters as vocab_size, embed_size, hidden_size, num_layers and dropout
+        super().__init__()
+        self.embed = nn.Embedding(vocab_size, embed_size, padding_idx=0)#embedding layer to convert the input ids to embeddings
+        self.rnn = nn.RNN(embed_size, hidden_size, num_layers, batch_first=True, dropout=dropout)
+        self.fc = nn.Linear(hidden_size, vocab_size)#linear layer to convert the hidden state to logits
+
+    def forward(self, x, hidden=None):#function to forward the input through the model
+        emb = self.embed(x)
+        out, h = self.rnn(emb, hidden)
+        logits = self.fc(out)#convert the hidden state to logits
         return logits, h
 
 
-# ---------------------------------------------------------------------------
-# 3. RNN WITH BASIC ATTENTION
-# ---------------------------------------------------------------------------
+#RNN with attention model
 class RNNAttention(nn.Module):
-    """
-    RNN with causal (autoregressive) attention over previous hidden states.
-    At each step, attends only to previous positions (masked).
-    """
+    #class to initialize the RNN with attention model with parameters as vocab_size, embed_size, hidden_size and dropout
     def __init__(self, vocab_size, embed_size=32, hidden_size=128, dropout=0.2):
         super().__init__()
-        self.embed = nn.Embedding(vocab_size, embed_size, padding_idx=0)
+        self.embed = nn.Embedding(vocab_size, embed_size, padding_idx=0)#embedding layer to convert the input ids to embeddings
         self.rnn = nn.RNN(embed_size, hidden_size, batch_first=True)
         # Attention: query from current hidden, keys/values from all previous hiddens
         self.attn_w = nn.Linear(hidden_size * 2, hidden_size)
         self.fc = nn.Linear(hidden_size * 2, vocab_size)
 
-    def forward(self, x, hidden=None):
+    def forward(self, x, hidden=None):#function to forward the input through the model
         emb = self.embed(x)
-        rnn_out, h = self.rnn(emb, hidden)  # (B, T, H)
+        rnn_out, h = self.rnn(emb, hidden) #B, T, H
         # Simple additive self-attention with causal mask
         B, T, H = rnn_out.shape
-        scores = torch.bmm(rnn_out, rnn_out.transpose(1, 2))  # (B, T, T)
+        scores = torch.bmm(rnn_out, rnn_out.transpose(1, 2)) #B, T, T
         mask = torch.triu(torch.ones(T, T, device=x.device), diagonal=1).bool()
         scores = scores.masked_fill(mask.unsqueeze(0), float("-inf"))
         attn = torch.softmax(scores, dim=-1)
-        context = torch.bmm(attn, rnn_out)
-        combined = torch.cat([rnn_out, context], dim=-1)
-        logits = self.fc(combined)
-        return logits, h
+        context = torch.bmm(attn, rnn_out)#B, T, H
+        combined = torch.cat([rnn_out, context], dim=-1)#B, T, 2H
+        logits = self.fc(combined)#B, T, V
+        return logits, h#convert the hidden state to logits
 
 
-# ---------------------------------------------------------------------------
-# TRAINING
-# ---------------------------------------------------------------------------
+#train
 def train_epoch(model, loader, criterion, optimizer, device, pad_idx):
     model.train()
     total_loss = 0.0
@@ -192,13 +161,13 @@ def train_epoch(model, loader, criterion, optimizer, device, pad_idx):
 
 
 def is_valid_name(name, min_len=4, max_len=16):
-    """Filter out garbage: too short, bad consonant clusters, no vowels."""
+#used to filter the names such as too short, bad consonant clusters, no vowels. eg abcd
     if len(name) < min_len or len(name) > max_len:
         return False
-    name_lower = name.lower()
+    name_lower = name.lower()#convert the name to lowercase
     vowels = set("aeiou")
-    consonant_streak = 0
-    vowel_count = 0
+    consonant_streak = 0#used to count the number of consecutive consonants
+    vowel_count = 0#used to count the number of vowels
     for c in name_lower:
         if c in vowels:
             vowel_count += 1
@@ -211,9 +180,9 @@ def is_valid_name(name, min_len=4, max_len=16):
         return False
     return True
 
-
+#generating names 
 def generate_names(model, dataset, num_names, temperature=0.8, max_len=20, device="cpu", top_k=50, min_valid_len=4):
-    """Generate names with top-k sampling and quality filtering."""
+    #top k sampling
     model.eval()
     gen = []
     pad_idx = dataset.pad_idx
@@ -226,7 +195,7 @@ def generate_names(model, dataset, num_names, temperature=0.8, max_len=20, devic
     attempts = 0
 
     with torch.no_grad():
-        while len(gen) < num_names and attempts < max_attempts:
+        while len(gen) < num_names and attempts < max_attempts:#generate names until the number of names is reached or the maximum number of attempts is reached
             attempts += 1
             start = np.random.choice(start_chars)
             idx = dataset.char2idx[start]
@@ -252,7 +221,7 @@ def generate_names(model, dataset, num_names, temperature=0.8, max_len=20, devic
                     break
                 seq.append(next_idx)
 
-            name = "".join(dataset.idx2char[i] for i in seq if i != pad_idx).capitalize()
+            name = "".join(dataset.idx2char[i] for i in seq if i != pad_idx).capitalize()#convert the sequence to a name
             if is_valid_name(name, min_len=min_valid_len):
                 gen.append(name)
 
@@ -287,60 +256,51 @@ def generate_names(model, dataset, num_names, temperature=0.8, max_len=20, devic
     return gen
 
 
-# ---------------------------------------------------------------------------
-# MAIN
-# ---------------------------------------------------------------------------
+#counting the number of parameters in the model
 def count_params(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
-
+#loading the training names
 def load_training_names(dataset):
-    """Get set of training names (lowercase) for novelty calculation."""
     return set(dataset.names)
 
-
+#calc for novelty rate.
 def novelty_rate(generated, training):
     gen_lower = [g.lower() for g in generated]
     novel = sum(1 for g in gen_lower if g not in training)
     return 100.0 * novel / len(generated) if generated else 0.0
 
-
+#calc for diversity.
 def diversity(generated):
     unique = len(set(g.lower() for g in generated))
     total = len(generated)
     return 100.0 * unique / total if total else 0.0
 
-
+#plot the loss curves
 def plot_loss_curves(loss_history, output_path):
-    """Plot loss curves for all three models."""
     fig, ax = plt.subplots(figsize=(10, 6))
     for model_name, losses in loss_history.items():
         ax.plot(losses, label=model_name, alpha=0.9)
     ax.set_xlabel("Epoch")
     ax.set_ylabel("Loss")
-    ax.set_title("Training Loss Curves - All Models")
+    ax.set_title("Training Loss Curve")
     ax.legend()
-    ax.grid(True, alpha=0.3)
+    ax.grid(True, alpha=0.4)
     plt.tight_layout()
     plt.savefig(output_path, dpi=150, bbox_inches="tight")
     plt.close()
-    print(f"  Loss curve saved to {output_path}")
+    print(f"  Loss curve saved! ")
 
 
 def main():
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    print("=" * 70)
-    print("Problem 2: Character-Level Name Generation")
-    print("=" * 70)
-    print("Note: If TrainingNames.txt shows content in your editor but script says empty, SAVE the file first (Cmd+S).")
+    print("Character-Level Name Generation")
 
-    # Load data (no auto-overwrite: if file is empty, fail with clear message)
+    # Load data from the training names file
     dataset = NameDataset(DATA_PATH)
     if len(dataset) == 0:
         data_path = os.path.join(os.path.dirname(__file__), DATA_PATH)
         raise ValueError(
             "TrainingNames.txt is empty or has no valid names. "
-            "If you see names in your editor, SAVE the file (Cmd+S / Ctrl+S) and try again."
         )
     loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_pad, num_workers=0)
     print(f"\nLoaded {len(dataset)} names, vocab size {dataset.vocab_size}")
@@ -349,26 +309,28 @@ def main():
     criterion = nn.CrossEntropyLoss(ignore_index=-100)
 
     models_config = [
-        ("Vanilla_RNN", VanillaRNN(
+        ("Vanilla RNN", VanillaRNN(
             dataset.vocab_size, EMBED_SIZE, HIDDEN_SIZE, NUM_LAYERS
         )),
         ("BLSTM", BLSTM(
             dataset.vocab_size, EMBED_SIZE, HIDDEN_SIZE, NUM_LAYERS
         )),
-        ("RNN_Attention", RNNAttention(
+        ("RNN Attention", RNNAttention(
             dataset.vocab_size, EMBED_SIZE, HIDDEN_SIZE
         )),
     ]
 
-    # Architecture summary (Task-1)
-    print("\n" + "-" * 70)
+    # Architecture summary
+    print("--------------------------------")
     print("TASK-1: Model Architectures & Hyperparameters")
-    print("-" * 70)
+    print("--------------------------------")
     for name, model in models_config:
         n = count_params(model)
         print(f"  {name}: {n:,} trainable parameters")
+    print("--------------------------------")
     print(f"  Hyperparameters: hidden_size={HIDDEN_SIZE}, embed_size={EMBED_SIZE},")
     print(f"  layers={NUM_LAYERS}, lr={LEARNING_RATE}, epochs={EPOCHS}")
+    print("--------------------------------")
 
     training_names = load_training_names(dataset)
     results = {}
@@ -379,39 +341,39 @@ def main():
         "per_temperature": {},
     }
     output_dir = os.path.dirname(os.path.abspath(__file__))
-
+    #training the models
     for name, model in models_config:
-        print(f"\n--- Training {name} ---")
+        print(f"\nTraining {name} ")
         model = model.to(device)
-        lr = LEARNING_RATE * 0.5 if "BLSTM" in name else LEARNING_RATE
-        epochs = int(EPOCHS * 1.2) if "BLSTM" in name else EPOCHS
+        lr = LEARNING_RATE * 0.5 if "BLSTM" in name else LEARNING_RATE#learning rate for the model
+        epochs = int(EPOCHS * 1.2) if "BLSTM" in name else EPOCHS#number of epochs for the model
         optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-        losses = []
-
+        losses = []#list to store the losses
+#training the model for the number of epochs
         for ep in range(epochs):
             loss = train_epoch(model, loader, criterion, optimizer, device, dataset.pad_idx)
             losses.append(round(loss, 4))
             if (ep + 1) % 25 == 0 or ep == 0:
                 print(f"  Epoch {ep+1}/{epochs}  loss={loss:.4f}")
-
+#storing the losses for the model
         loss_history[name] = losses
         metrics["training"][name] = {"losses": losses, "final_loss": losses[-1], "epochs": epochs}
-
+        #generating names for the model
         top_k = 35 if "BLSTM" in name else 50
         gen_by_temp = {}
         default_gen = []
-
+        #generating names for the model for the different temperatures
         for temp in TEMPERATURES:
             gen = generate_names(model, dataset, GEN_NAMES_PER_MODEL, temp, MAX_NAME_LEN, device, top_k=top_k)
-            nr = novelty_rate(gen, training_names)
-            div = diversity(gen)
+            nr = novelty_rate(gen, training_names)#calculating the novelty rate for the model
+            div = diversity(gen)#calculating the diversity for the model
             gen_by_temp[str(temp)] = {
                 "novelty_rate": round(nr, 2),
                 "diversity": round(div, 2),
                 "count": len(gen),
                 "samples": gen[:15],
             }
-            if temp == 0.8:
+            if temp == 0.8:#storing the names for the default temperature(avg value)
                 default_gen = gen
 
         metrics["per_temperature"][name] = gen_by_temp
@@ -421,7 +383,7 @@ def main():
             "novelty_rate": round(nr_default, 2),
             "diversity": round(div_default, 2),
             "total_generated": len(default_gen),
-            "temperatures_tested": TEMPERATURES,
+            "temp_tested": TEMPERATURES,
         }
 
         out_file = os.path.join(output_dir, f"{name.lower()}_names.txt")
@@ -436,11 +398,11 @@ def main():
 
     with open(os.path.join(output_dir, "metrics.json"), "w", encoding="utf-8") as f:
         json.dump(metrics, f, indent=2)
-    print(f"\n  metrics.json saved")
+    print(f"\nsaved")
 
-    print("\n" + "=" * 70)
-    print("Done. See metrics.json, loss_curves.png")
-    print("=" * 70)
+    print("\n" + "--------------------------------")
+    print("Done!")
+    print("--------------------------------")
 
 
 if __name__ == "__main__":

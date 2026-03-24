@@ -1,19 +1,17 @@
-"""
-Task-3: Qualitative Analysis - Realism, Failure Modes, Sample Outputs
-Analyzes generated names from each model.
-"""
+#b23ch1037
+#Rahul Ahuja
 import os
 
-
+#load the names from the file
 def load_names(filepath):
-    names = []
+    names = []#list to store the names
     if not os.path.exists(filepath):
         return names
     with open(filepath, "r", encoding="utf-8") as f:
         for line in f:
-            n = line.strip()
+            n = line.strip()#strip the line
             if n:
-                names.append(n)
+                names.append(n)#append the name to the list
     return names
 
 
@@ -26,9 +24,7 @@ def main():
     ]
 
     lines = [
-        "=" * 70,
-        "Task-3: Qualitative Analysis",
-        "=" * 70,
+        "Qualitative Analysis",
         "",
         "1. REALISM: Do generated names look like real Indian names?",
         "   - Good models produce names with typical syllable patterns (consonant-vowel)",
@@ -52,7 +48,7 @@ def main():
         lines.append("-" * 70)
         seen = set()
         for n in names:
-            if n.lower() not in seen and len(seen) < 30:
+            if n.lower() not in seen and len(seen) < 30:#check if the name is not in the set and the length of the set is less than 30
                 seen.add(n.lower())
                 lines.append(f"  {n}")
         lines.append("")
@@ -62,7 +58,7 @@ def main():
         f.write("\n".join(lines))
 
     print("\n".join(lines))
-    print(f"\nSaved to {out}")
+    print(f"\nSaved!")
 
 
 if __name__ == "__main__":
