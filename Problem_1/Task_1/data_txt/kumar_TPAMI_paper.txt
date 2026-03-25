@@ -1,0 +1,1527 @@
+1
+Moment Alignment Transformer for Video-to-Video
+Moment Retrieval
+Yogesh Kumar, Uday Agarwal, Manish Gupta, and Anand Mishra
+Abstract —Video-to-video moment retrieval ( Vid2VidMR ) is the
+task of localizing unseen events or moments in a target video
+using a query video. This task poses several challenges, such
+as the need for semantic frame-level alignment and modeling
+complex dependencies between query and target videos. To
+tackle this challenging problem, we introduce MATR (M oment
+Alignment TR ansformer), a transformer-based model designed
+to capture semantic context as well as the temporal details
+necessary for precise moment localization. MATR conditions
+target video representations on query video features using dual-
+stage sequence alignment that encodes the required correlations
+and dependencies. These representations are then used to guide
+foreground/background classification and boundary prediction
+heads, enabling the model to accurately identify moments in
+the target video that semantically match with the query video.
+Additionally, to provide a strong task-specific initialization for
+MATR, we propose a self-supervised pre-training technique that
+involves training the model to localize random clips within videos.
+Extensive experiments demonstrate that MATR achieves notable
+performance improvements of 15.4% in R@1 and 11.4% in mIoU
+on an absolute scale compared to the state-of-the-art methods
+on the popular ActivityNet-VRL dataset. Additionally, on our
+newly proposed dataset, SportsMoments, MATR shows a 16.4%
+gain in R@1 and a 16.3% gain in mIoU on an absolute scale
+over strong baselines. We make our implementation available at:
+https://github.com/vl2g/MATR.
+Index Terms —Video-to-Video Moment Retrieval, Temporal
+Localization, Semantic Alignment, Self-Supervised Pre-training,
+Video Understanding, Video Representation Learning.
+I.INTRODUCTION
+Video moment retrieval is the task of temporally localizing
+the start and end times of a moment1in a target video
+described by a given query. Although text-based video moment
+retrieval has been extensively explored [1, 2, 3, 4, 5, 6], it
+often poses challenges for users attempting to describe specific
+moments verbally. For example, consider a spectacular bicycle
+kick in soccer (Fig. 1 top). Although an expert can search by
+naming or describing it in detail, a beginner in soccer may
+struggle to describe this impressive move accurately. They
+might say something like “The player kicked the ball while
+in the air”, which lacks the nuance needed to convey the
+athleticism and artistry involved. Such a description may lead
+to poor results for someone searching for similar moments.
+In contrast, if a soccer trainee shows a short video clip of a
+Yogesh Kumar, Uday Agarwal, and Anand Mishra are with the Depart-
+ment of Computer Science and Engineering, Indian Institute of Technology
+Jodhpur, Jodhpur 342030, India. (e-mail: kumar.204@iitj.ac.in, agarwalu-
+day@iitj.ac.in, mishra@iitj.ac.in). Manish Gupta is with Microsoft, Hyder-
+abad, India. (e-mail: gmanish@microsoft.com)
+1A moment is a continuous segment of frames within a target video that
+best represents the actions, events, or interactions described by the query.
+“ A stock man is lifting dumbbells to his sides with 
+controlled motion to target his shoulder muscles, 
+maintaining proper form throughout." 
+"A man positions himself beneath the ball, 
+leaping into the air, bending his knees and 
+arching his back. As he ﬂips backward, he 
+connects with the ball using his foot." 
+Vid2Vid Moment Retrieval 
+Frame to 
+Frame 
+Alignment 
+Output Segment Query Video 
+T arget Video T ext Query Video Query Fig. 1: (Top): Activity where text falls short to explain complex
+action or events, such as dumbbell side raises and bicycle kick ,
+necessitating the need for a more intuitive query modality for local-
+izing semantically matching moments. ( Bottom ): Shows the Vid2Vid
+moment retrieval setting, which is the goal of this work.
+bicycle kick , the input is rich and crisp, making it easier for
+a retriever to locate similar moments in a target soccer match
+video. This approach aligns with how users naturally would
+prefer to search content within the same (video) modality,
+making it a more effective method for retrieving specific
+moments. Fig. 1 (bottom) shows a video cover drive query
+in cricket that is localized in a target video.
+Therefore, in this work, we study video-to-video moment
+retrieval ( Vid2VidMR ) where the aim is to temporally lo-
+calize a moment in the target video with a high semantic
+match between the moment and the query video. Vid2VidMR ,
+a task formally introduced by Feng et al. [7], has many
+potential application areas, such as sports video analytics,
+educational content creation and e-learning, and surveillance
+systems. This task is challenging and requires semantic frame-
+level alignment and modeling complex dependencies between
+query and target videos. This task is further complicated by
+the immense search space of thousands of frames, making
+efficient yet accurate processing essential. The need for a
+semantic understanding of video content and variety in video
+length, context, and action speed calls for adaptive models
+capable of generalizing across diverse scenarios. Addressing
+these challenges demands advanced temporal video modeling
+techniques.
+To address the aforementioned challenges, we propose
+2
+MATR (M oment A lignment TR ansformer) – a method that
+uses explicit ‘dual-stage sequence alignment’ to capture the
+required correlation and temporal details essential for accurate
+moment localization. By conditioning target video representa-
+tions on query features, MATR produces query-aligned repre-
+sentations that encode the necessary correlations and temporal
+dependencies between the two videos. We use differentiable
+dynamic time warping [8, 9] loss for aligning the query and
+target videos, and represent the target video by conditioning
+it on the query video to focus on correlated temporal features.
+These representations guide a classification head to discrim-
+inate relevant moments from the irrelevant background and
+a boundary prediction head to mark the start and end of the
+identified moment in the target video. Further, to enhance our
+model’s generalization using unlabeled videos, we introduce
+a self-supervised pre-training strategy which involves training
+MATR to localize randomly sampled clips within the same
+video, enabling it to learn the moment localization skill in a
+self-supervised manner.
+We evaluate MATR on public ActivityNet-VRL [7] bench-
+mark and on our newly introduced dataset on the sports
+domain, viz. SportsMoments, covering two of the most pop-
+ular sports, namely soccer and cricket. The proposed dataset
+SportsMoments contains complex video queries that are hard
+to describe in text, as shown in Fig. 1. Also, SportsMoments
+provides a challenging large-scale benchmark to provide a
+comprehensive study on vid-to-vid moment retrieval task.
+Our approach achieves significant performance gains, with an
+improvement of 15.4% and 11.4% in R@1 and mIoU, respec-
+tively, on ActivityNet-VRL outperforming the state-of-the-art
+methods. Furthermore, MATR outperforms the implemented
+strong baselines on our proposed data set with 16.4% gains in
+R@1 and 16.3% gains in mIoU, all on an absolute scale.
+This work is an extension of our earlier work [10] accepted
+at ICCV 2025. For completeness, we summarize and expand
+upon all contributions as follows:
+(i) We introduce MATR, a dual-stage sequence alignment
+framework within a transformer architecture that explicitly
+models temporal correlations between target and query videos
+for accurate moment localization.
+(ii) We propose a self-supervised pre-training objective that
+enhances model initialization by learning rich video structure
+without requiring labeled data.
+(iii) We contribute the SportsMoments dataset and provide
+a comprehensive statistical analysis demonstrating its scale
+and diversity, complementing existing benchmarks such as
+ActivityNet-VRL.
+(iv) Compared to our earlier work [10], this paper provides
+a substantially expanded experimental study, including deeper
+ablations on alignment strategies and video backbones, robust-
+ness analyses, cross-modal benchmarking on text-VMR, and
+detailed comparisons with more recent approaches. Leverag-
+ing a stronger feature backbone that better captures spatio-
+temporal cues, our method achieves consistent and significant
+improvements over both prior work and state-of-the-art meth-
+ods.II.RELATED WORK
+A.Video Moment Retrieval (VMR)
+VMR has recently gained significant interest in the research
+community [1, 2, 3, 4, 5, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].
+Unlike video action understanding tasks such as action classifi-
+cation [21, 22, 23, 24, 25, 26, 27, 28] or temporal action local-
+ization [29, 30, 31], VMR focuses on identifying segments that
+semantically align with a broader range of queries, which may
+describe complex and context-specific moments. This focus on
+semantic alignment rather than predefined action categories en-
+ables VMR to address more flexible and nuanced video under-
+standing scenarios, ranging from identifying specific events to
+capturing abstract concepts in videos. The complexity of VMR
+stems from the need to understand both the query’s semantics
+and the temporal dynamics within target videos, requiring
+sophisticated cross-modal reasoning capabilities. Based on
+the query modality, existing VMR methods can be broadly
+grouped into (i) textual query-based approaches like Moment-
+DETR [1], QD-DETR [2], Uni-VTG [4], and (ii) video query-
+based approaches like GDP [32], FFI+SRM [33], SRL [34].
+While text-based VMR has seen extensive research attention
+due to the relative simplicity of handling textual queries, video
+query-based approaches remain less explored despite their
+practical importance in applications like video surveillance,
+sports analytics, and content recommendation systems. Our
+work falls under video query-based VMR ( Vid2VidMR ). How-
+ever, in addition to developing a new approach tailored for
+video query, we also adapt several text-query-based methods
+to make them suitable for Vid2VidMR and compare our method
+against both text and video query-based methods.
+B.Alignment in Videos
+Alignment has been a thrust area in the video understanding
+community. It has been applied to a wide range of video
+understanding tasks, including video retrieval [35], procedural
+steps alignment [9], action recognition [36], anomaly
+detection [37], movie understanding [38], and video
+synchronization [39, 40]. These alignment approaches
+vary in their formulation, ranging from classical dynamic
+programming methods like Dynamic Time Warping (DTW)
+to more recent neural network-based techniques that
+learn alignment patterns from data. The effectiveness of
+alignment methods is particularly evident in tasks requiring
+the establishment of temporal correspondence between
+different sequences or modalities. Researchers have also
+explored sequence alignment for the text-VMR task, e.g.,
+Chowdhury et al. [41] used sequence alignment between
+CNN representation of frames and GRU representation of text
+query to perform text-VMR. Their approach demonstrated
+that even simple alignment techniques could improve
+localization performance by establishing correspondences
+between textual descriptions and visual content. Jung et
+al. [42] used alignment to enhance semantic understanding
+between query and target video at the abstract level for
+the text-VMR task. However, their alignment is not at the
+sequence level. Despite these advances, most existing works
+utilize alignment in a single stage of their pipelines, limiting
+3
+their ability to capture both low-level visual similarities and
+high-level semantic relationships simultaneously. Compared
+to the existing literature, MATR goes beyond traditional
+sequence alignment by introducing a dual-stage alignment
+mechanism, leveraging transformer-based feature fusion, and
+maintaining flexibility with multiple alignment strategies.
+These innovations enable it to achieve more accurate and
+context-aware video moment retrieval compared to existing
+approaches.
+C.Video Encoder Pre-training
+Recent works [43, 44] have shown that pre-training on web-
+scale datasets can be highly effective for various downstream
+tasks in natural language processing as well as computer
+vision. The ability to transfer knowledge from large-scale
+datasets to specific tasks has become a cornerstone of modern
+deep learning approaches. The video representation learning
+community has also leveraged self-supervised pre-training
+techniques designed for training effective encoders [45, 46, 47,
+48, 49, 50, 51], which can be finetuned for enhanced perfor-
+mance on downstream tasks. Unlike image-based pre-training,
+video pre-training must capture both spatial and temporal
+dynamics, making it particularly challenging yet rewarding
+when successful. These approaches have exploited temporal
+coherence and visual consistency in videos to learn meaningful
+features. For example, studies like [48, 51] explored the
+random spatio-temporal trajectory detection (constructed with
+a sequence of random patches) for object detection. Inspired
+by these methods, which harness task-specific pre-training
+objectives for various video analytics tasks, we propose a
+novel self-supervised pre-training objective specially designed
+for the video-to-video moment retrieval task.
+III. BACKGROUND : DYNAMIC TIME WARPING
+Dynamic Time Warping (DTW) [52] is a widely used
+method for aligning and comparing two sequences, such as
+time series, that may vary in length or exhibit local accelera-
+tions and decelerations. Unlike the Euclidean distance, which
+requires sequences to be of the same length and aligned
+in time, DTW is robust to temporal shifts and distortions,
+making it a popular choice in speech, gesture, and time-series
+analysis [53].
+LetX= [x1, . . . ,xm]∈Rm×dandY= [y1, . . . ,yn]∈
+Rn×ddenote two sequences of possibly different lengths
+mandn, where dis the feature dimension. The pairwise
+dissimilarity between sequence elements is encoded in a cost
+matrix C∈Rm×n, with entries Ci,j=δ(xi,yj)for a chosen
+distance function δ(e.g., squared Euclidean).
+An alignment between XandYis represented by a binary
+matrix A∈ {0,1}m×n, where Ai,j= 1 indicates that xiis
+matched to yj. The set of all valid alignments, Am,n, enforces
+monotonicity and continuity constraints so that alignments are
+contiguous and order-preserving.
+DTW computes the minimum total alignment cost over all
+valid alignments:
+DTW( X,Y) = min
+A∈Am,n⟨A,C⟩,where ⟨A,C⟩=Pm
+i=1Pn
+j=1Ai,jCi,jis the Frobenius inner
+product. This optimization can be efficiently solved by dy-
+namic programming in O(mn)time and space.
+Limitations :DTW’s flexibility enables robust sequence
+comparison and alignment, even when sequences are stretched
+or compressed in time. However, a key limitation of DTW
+is that it is not differentiable with respect to its inputs, as
+the minimum over alignments introduces discontinuities. This
+non-differentiability makes DTW unsuitable as a loss function
+in gradient-based learning frameworks.
+Soft-DTW Differentiable Relaxation :To address this,
+soft-DTW [53] replaces the hard minimum in DTW with a
+differentiable soft-minimum (log-sum-exp) operator, parame-
+terized by a smoothing parameter γ > 0. The soft-minimum
+operator is defined as:
+minγ{a1, . . . , a K}=−γlogKX
+k=1exp
+−ak
+γ
+.
+The soft-DTW cost is then given by:
+soft-DTW γ(X,Y) = minγ{⟨A,C⟩:A∈ Am,n}.
+Asγ→0, soft-DTW recovers the original DTW; for γ >0, it
+aggregates the costs of all possible alignments, weighting them
+exponentially by their cost. This smoothing ensures that soft-
+DTW is differentiable everywhere with respect to its inputs,
+enabling its use as a loss function for end-to-end training of
+models that output sequences.
+IV.THEMATR M ODEL
+Our objective is to temporally localize a moment in a target
+video Vtusing a query video Vq. We represent the target and
+query videos as sequences of MandNuniformly sampled
+frames, respectively. We refer to this problem as Vid2VidMR .
+In this work, we present M oment A lignment TR ansformer
+(MATR) – a transformer-based architecture that leverages
+explicit alignment for precise moment localization. MATR
+transforms the target video into a query-aligned representation
+via a transformer framework to exploit finer-level correlation
+and dependencies for precise moment localization.
+A.Motivation behind MATR Architecture
+Video moments vary significantly in duration, motion pat-
+terns, and visual appearance, making their retrieval inherently
+challenging. Additionally, preserving the correct temporal or-
+der of events is crucial for accurate localization, as moments
+often involve complex interactions that unfold over time. A ro-
+bust Vid2VidMR model must, therefore, capture both high-level
+semantic relationships and fine-grained frame dependencies to
+ensure precise alignment between the query and target video.
+To address these challenges, MATR incorporates an explicit
+dual-stage sequence alignment strategy within a transformer-
+based encoder-decoder framework. This strategy enables
+MATR to learn a query-aligned representation of the target
+video by combining the abstract representation from the en-
+coder with the refined fine-grained features from the decoder.
+In doing so, it facilitates precise moment localization by
+4
+… 
+Aligned 
+Target Features 
+Linear Projection Linear Projection Start, End bg/fg 
+Post Fusion 
+Alignment 
+Query Target 
+Learnable Queries Pre Fusion 
+Alignment 
+Query Video 
+ApreNM
+Query Target 
+ApostNM
+M ✕ 512
+N ✕ 512
+N ✕ dM ✕ d
+Multi-Head Self 
+Attention Feed 
+Forward … … M ✕ d
+N ✕ d
+Positional 
+Embedding Frozen Weights … … (M + l) ✕ d… … 
+bg/fg:  background/foreground ❄ ❄ 
+Encoder 
+CLIP Image 
+Encoder CLIP Image 
+Encoder Multi-Head Self Attention Feed Forward 
+Multi-Head Cross Attention 
+Decoder 
+Target Video 
+Conv Conv Output 
+❄ ✕ k
+✕ kl ✕ d
+l ✕ d✕ c ✕ c
+Fig. 2: M oment A lignment TR ansformer (MATR) Architecture. We represent the target video as a query-aligned representation capturing
+the required correlation and dependencies with query video at the abstract level (output of encoder) and finer level (output of decoder).
+These features are used to extract foreground target frames, as well as localize the relevant moment in terms of start and end times via
+two prediction heads. The alignment is computed using representations both before and after the encoder (shown using blue dotted and red
+dashed lines, respectively). [Best viewed in color] .
+leveraging both global semantic alignment and fine-grained
+temporal dependencies between the query and target videos.
+Fig. 2 illustrates the overall architecture of MATR, which we
+discuss in detail in the following.
+B.Architecture Details
+Input Representation. We uniformly sample frames every
+2 seconds to obtain MandNframes from the target and
+query videos, respectively. We encode these frames using a
+frozen CLIP [54] (ViT-B/32) encoder along with a linear
+projection module. CLIP is applied separately to both videos
+to obtain target video embeddings Et∈RM×dand query
+video embeddings Eq∈RN×d. The linear projection module
+is a two-layer perceptron, each with layer normalization and
+dropout. It maps 512-dimensional CLIP embeddings to d-
+dimensional outputs. The resulting projected features ( Etand
+Eq) are concatenated along the sequence length dimension
+to form the input to the transformer encoder, denoted as
+Ec= [E t; Eq]∈R(M+N)×d.
+Encoder. The combined target and query video representation
+(Ec) is processed through a series of kstandard Trans-
+former [55] encoder layers, each comprising a multi-head self-
+attention mechanism and a feed-forward network. Further, fol-
+lowing the prior works [56, 57, 58], fixed positional encodings
+are added to the input of each attention layer to preserve
+temporal order. The encoder generates a fused representation
+[Eg
+t; Eg
+q]of the target video conditioned on the query video.
+Here Eg
+t∈RM×dandEg
+q∈RN×drepresent the target and
+query parts respectively.
+Dual-stage Sequence Alignment . The transformer encoder
+computes effective features by performing a joint understand-
+ing (or fusion) of target and query video frames. The finalgoal of Vid2VidMR is to localize a moment in the target
+video that semantically matches the content of the query
+video. In other words, we would prefer the features of the
+moment in the target to align strongly with the features of
+the query video. Therefore, we perform dual-stage sequence
+alignment, i.e, before and after the encoder. In our model,
+we incorporate several alignment techniques—including soft-
+DTW [53], TCC [37], DropDTW [9], and OTAM [59], etc.
+to enable robust temporal matching between query and target
+videos. While our framework supports all these methods,
+we describe the alignment process here using soft-DTW for
+clarity.
+Pre-fusion alignment: Before encoder fusion, given the target
+and query video feature sequences, Et= [et
+1, . . . , et
+M]∈
+RM×dandEq= [eq
+1, . . . , eq
+N]∈RN×d, soft-DTW outputs
+a binary alignment matrix Apreand an alignment cost matrix
+Cpre.Apre∈ {0,1}M×Nis an alignment matrix such that:
+Apre
+i,j=(
+1ifet
+iis matched to eq
+j,
+0otherwise.
+further, soft-DTW finds the optimal alignment by minimizing
+the pre-fusion alignment loss Lpre
+align, defined as:
+Lpre
+align= soft -DTW γ(Apre
+i,j,Cpre
+i,j),
+such that aligned frames in the target are contiguous. Here γ
+is a smoothing factor for soft-min operator. The value of γin
+Soft-DTW is selected empirically to balance smoothness and
+alignment fidelity. Note that Cpreis the alignment cost matrix
+with elements defined by cosine similarity:
+Ci,j= 1−⟨et
+i,eq
+j⟩
+∥et
+i∥∥eq
+j∥.
+5
+Pre-fusion alignment enhances the semantic representation of
+target and query video. These enhanced representations are
+further processed by the encoder. The encoder outputs the
+fused representation of the target and query.
+Post-fusion alignment: Given the post-fusion target and query
+video feature sequences, Eg
+t∈RM×dandEg
+q∈RN×d, soft-
+DTW outputs a binary alignment matrix Apostand an align-
+ment cost matrix Cpost, soft-DTW achieves optimal alignment
+between Eg
+tandEg
+qby minimizing the post-fusion alignment
+lossLpost
+align, defined as:
+Lpost
+align= soft -DTW γ(Apost
+i,j,Cpost
+i,j).
+Post-fusion alignment refines target video features by leverag-
+ing fused query-target representations, ensuring fine-grained
+semantic matching for precise moment localization.
+Decoder . The decoder in MATR further refines the target
+video representation by processing aligned query-target fea-
+tures, enabling fine-grained temporal matching and enhancing
+frame-level precision for accurate moment localization. To
+this end, the post-fusion alignment matrix Apostdefines a
+contiguous sub-sequence Eg
+t[s:e]which aligns best with the
+query video. These aligned target features, capturing query-
+aligned fine-grained information, are passed as input to the
+decoder for further refinement. The decoder consists of k
+Transformer layers, each containing a multi-head self-attention
+layer, a multi-head cross-attention layer, and a feed-forward
+network. The input to the decoder comprises fixed size l
+learnable query vectors denoted by Q∈[q1, . . . , q l]∈Rl×d.
+These queries guide the extraction of refined features relevant
+to moment localization. As these queries are processed through
+each decoder layer, they are refined to capture intricate tem-
+poral dependencies, with positional encodings applied at each
+attention layer. The cross-attention layers enable interaction
+between Eg
+t[s:e]from the encoder (which serve as keys and
+values) and representations of moment queries (which serve
+as queries). The final decoder output, El
+t∈Rl×d, provides a
+refined fine-grained set of target video features conditioned on
+the query video.
+Finally, the encoder and decoder representations are com-
+bined as Ef= [Eg
+t; El
+t], making the final target video represen-
+tation query-aligned. The final query-aligned representation ,
+combining the abstract and fine-grained semantics, serves as
+input for the prediction heads.
+Prediction Heads. The prediction heads consist of three ( c=
+3) sequential convolutional layers each having d,1×3kernels
+followed by a ReLU activation. Finally, a sigmoid activation
+function is applied to produce the foreground predictions ˆfi.
+The model is trained using the following binary cross-entropy
+lossLfgto distinguish foreground (relevant moment) from
+background predictions:
+Lfg=−
+filogˆfi+ (1−fi) log(1 −ˆfi)
+,
+where fiis the ground truth label, with fi= 1 andfi= 0
+indicating foreground and background, respectively.
+In addition to foreground classification, the boundary pre-
+diction head is designed to estimate the start and end bound-
+aries for the moment at every position. This head shares the
+Target Video 
+Random Query Segment 
+MA TR Conv Conv 
+… … 
+Output 
+           :{0,1}                   :[start, end] 
+✕ c ✕ cFig. 3: Proposed self-supervised pre-training strategy: Given a
+target video, a query clip is randomly sampled from it and processed
+by the model. The model then predicts the boundaries of the selected
+clip within the target video, highlighting the corresponding frames
+with a green border. (Best viewed in color)
+same initial structure as the classification head but differs in
+the final output, producing two channels for left and right
+boundary offsets relative to the current position. Specifically,
+given Ef, the boundary prediction head outputs predicted
+offsets ˆdi={ˆdL
+i,ˆdR
+i}for each position i∈[0, M−1],
+where ˆdL
+iandˆdR
+irepresent the left and right boundary offsets,
+respectively. The boundary prediction head is trained with
+a combination of smooth L1and generalized intersection
+over union (IoU) loss [60], specifically applied to foreground
+positions ( fi= 1), defined as:
+Lseg=1fi=1h
+λL1LL1
+ˆdi, di
++λIoULIoU
+ˆdi, dii
+.
+Here, didenotes the ground truth offset. The parameters λL1
+andλIoUweigh the contributions of the smooth L1 and IoU
+losses, ensuring that boundary localization focuses on the
+predictions identified as foreground.
+Convolutional layers operate along the temporal axis over
+the concatenated encoder query-conditioned and decoder-
+aligned target features. This preserves temporal continuity,
+enabling fine-grained predictions without boundary artifacts.
+Overall Loss. The overall loss function Lis computed as a
+combination of multiple objectives, accounting for alignment
+costs (pre- and post-fusion alignment), foreground/background
+classification, and boundary localization. For Straining sam-
+ples, this multi-objective overall loss is defined as:
+L=1
+SSX
+i=1
+λfgLfg+λsegLseg+λpre
+alignLpre
+align+λpost
+alignLpost
+align
+,
+where the λs control the importance of each component.
+Inference. During inference, given a target video Vtand a
+query video Vq, we pass both through the model to generate
+foreground probabilities {ˆfi}M−1
+i=0 and boundary predictions
+{ˆdi}M−1
+i=0 using the two prediction heads. To handle the
+densely generated boundaries, while predicting ˆdi, we apply
+1-dimensional non-maximal suppression with a threshold of
+0.7, filtering out highly overlapping boundaries and producing
+the final set of predictions. We choose ˆdicorresponding to
+position iwith highest ˆfi.
+C.Self-supervised Pre-training Strategy
+The video representation learning community has leveraged
+self-supervised pre-training techniques designed for training
+effective encoders [45, 46, 47, 48, 49, 50, 51], which can be
+finetuned for enhanced performance on downstream tasks. In
+this work, we introduce a self-supervised pre-training objective
+6
+designed to improve temporal localization capabilities without
+relying on labeled data. Specifically, given a target video
+Vt, a query clip Vqis randomly sampled from Vtas shown
+in Fig. 3. The model is then trained to localize this query
+clip in Vt. This pre-training objective closely aligns with the
+task of Vid2VidMR . To enhance generalization capabilities and
+encourage the model to become robust to variations in both
+appearance and timing, we apply one of the following random
+augmentations to each of the query clips: reversing frames,
+adding gaussian noise, slowing down or speeding up the
+action, thereby doubling the number of pre-training samples.
+These augmentations introduce temporal and spatial variations,
+enabling the model to learn diverse representations.
+The overall pre-training loss, Lpt, combines the foreground-
+background classification loss, the boundary prediction loss,
+pre-fusion and post-fusion alignment costs. The total loss is
+averaged over Ppre-training samples as:
+Lpt=1
+PPX
+i=1
+λp
+fgLfg+λp
+segLseg+λpre
+alignLpre
+align+λpost
+alignLpost
+align
+,
+where the λs control the importance of each component.
+V.DATASETS
+We use the following two datasets to compare our proposed
+approach with existing Vid2VidMR methods and other strong
+baselines:
+A.ActivityNet-VRL Dataset [7]
+ActivityNet-VRL is the popular benchmark dataset shared
+by Feng et al. [7], based on the ActivityNet video under-
+standing benchmark [61] consisting of 200 action classes. The
+dataset is split into 160 disjoint classes for training and 20
+classes each for the validation and test splits. Furthermore, the
+training set comprises 463K query-target video pairs, while
+the validation set and the test set have 829 and 978 query-
+target video pairs, respectively. As shown in Table I, this
+class-disjoint split ensures that models are evaluated on unseen
+activity categories, providing a rigorous test of generalization
+capabilities. The temporal characteristics of ActivityNet-VRL
+are detailed in Table II, revealing that target videos have an
+average duration of 38.2 seconds (median 29.3 seconds), with
+substantial variation ranging from very short clips (1.3 sec-
+onds) to longer recordings (191.5 seconds). Query videos are
+significantly shorter, averaging just 8.2 seconds (median 7.2
+seconds), with lengths varying from 0.5 to 57.2 seconds. This
+substantial difference between query and target video durations
+highlights the challenging nature of the temporal localization
+task, where models must identify short actions within much
+longer contexts. The extensive training set, combined with
+diverse activity categories and varying video lengths, makes
+ActivityNet-VRL a comprehensive benchmark for evaluating
+the generalization capabilities of Vid2VidMR models across
+different types of human activities.
+B.Our proposed SportsMoments Dataset
+One of the most promising applications for Vid2VidMR
+lies in the area of sports analytics. Although there existDataset Split # Pairs # Classes
+SportsMomentsTrain 750,393 16
+Val 10,000 4
+Test 10,000 9
+ActivityNet-VRL [7]Train 462,872 160
+Val 829 20
+Test 978 20
+TABLE I: Statistical Comparison Between ActivityNet-VRL and the
+Proposed SportsMoments Dataset. While ActivityNet-VRL contains
+greater class diversity (160 training classes), SportsMoments offers
+substantially larger validation and test sets (10,000 pairs each versus
+829/978), enabling more comprehensive evaluation of model gener-
+alization capabilities.
+Dataset Type Mean Median Max. Min.
+SportsMomentTarget Video 98.3 98.2 208.8 35.4
+Query Video 6.0 5.0 66.0 1.0
+ActivityNet-VRLTarget Video 38.2 29.3 191.5 1.3
+Query Video 8.2 7.2 57.2 0.5
+TABLE II: Temporal Characteristics of Videos in SportsMoments
+and ActivityNet-VRL Datasets. SportsMoment contains significantly
+longer target videos (98.3s mean vs 38.2s) while maintaining shorter
+query segments (6.0s vs 8.2s).
+large-scale sports datasets such as Sports-1M [62], they are
+primarily tailored for broader sports video classification tasks
+and do not contain fine-grained sports actions and moments,
+such as “Cover Drive,” “Ducking a Bouncer,” “Goal Kick,”
+or “Penalty.” Secondly, although ActivityNet-VRL covers a
+wide range of action categories (including sports actions), it
+only encompasses broader categories such as “Playing Polo”
+and does not focus on capturing higher-granularity events
+within a sport. Towards filling this gap, we introduce the
+SportsMoments dataset, which consists of ∼770K query-
+target pairs annotated from 176.6 hours of complete match
+footage of two of the most popular sports, viz. soccer and
+cricket. We obtain a total of 80 full-length cricket and soccer
+match videos from YouTube. We then curate a list of 29
+action classes comprising 13 soccer and 16 cricket actions,
+respectively. Given this list, we employed two annotators, each
+with strong knowledge of these sports, to mark the start and
+end timestamps for the specified actions in the videos. We
+split SportsMoments into training, validation, and test sets. The
+training split consists of approximately 750K pairs spanning
+16 classes, while the validation and test splits each contain 10K
+pairs, covering 4 and 9 classes, respectively. Action classes are
+disjoint across the train, validation, and test sets, ensuring no
+overlap. Additionally, each split includes cricket and soccer
+actions for a well-rounded distribution. The statistics of the
+dataset are provided in Tables I and II.
+Additionally, we leverage the unlabeled videos from the
+Kinetics700 [25] dataset for pre-training.
+VI. EXPERIMENTS AND RESULTS
+A.Baselines
+We experiment with an extensive set of strong baselines
+grouped into four categories as follows.
+1)Fully-supervised Vid2VidMR methods :We compare
+with Vid2VidMR methods like CGBM [7], GDP [32],
+SRL [34], FFI+SRM [33], SST [63] and Video-level match [7].
+These approaches represent traditional fully-supervised meth-
+ods that have been specifically designed for video-to-video
+7
+moment retrieval tasks. Many of these methods rely on so-
+phisticated attention mechanisms to establish correspondences
+between query and target video features, but they often lack the
+explicit alignment strategies that our approach incorporates.
+Their performance varies significantly based on the feature
+extraction backbones and matching strategies employed, with
+more recent methods generally achieving better results through
+improved feature representation learning. Further, Huo et
+al. [33] adapt text-VMR methods like VSLNet [64], MA-
+BAN [65] and 2D-TAN [66] by replacing their text encoders
+with a C3D [24] feature extractor to extract query video
+features. This adaptation enables text-based methods to pro-
+cess video queries, providing a more direct comparison with
+our approach. While these adaptations demonstrate reasonable
+performance, they often struggle with effectively modeling
+the temporal dynamics present in video queries, as they were
+originally designed for a different modality of text. This high-
+lights the need for approaches like ours that are specifically
+engineered to handle the unique challenges of video-to-video
+correspondence. All of these models have been trained on
+ActivityNet-VRL.
+2)Vision-Language Models (VLMs) :VLMs like Video-
+LLaMa [67], Video-LLaVa [68], and TimeChat [69] excel
+at multimodal text-video tasks such as VQA and captioning,
+thanks to large-scale pre-training on diverse datasets. However,
+their architectures are tailored for text-video interactions and
+lack exposure to video-to-video aligned data. This limits their
+ability to perform fine-grained temporal matching required
+for video-to-video retrieval, making them less effective for
+our task without substantial adaptation. To this end, we first
+represent the query video using a state-of-the-art captioner,
+i.e., mPLUG-OWL [70]. This conversion from video to text
+enables these text-centric models to process video queries
+indirectly. However, this approach inevitably loses some of the
+rich temporal and visual information present in the original
+query video, potentially limiting performance on tasks that
+require precise temporal alignment. Next, the VLMs are zero-
+shot prompted to generate start and end moment timestamps
+given the query caption and target video tokens.
+3)Text-VMR methods :Moment-DETR [1], QD-
+DETR [2], CG-DETR [3], BM-DETR [71] and UniVTG [4]
+have been originally proposed for text-VMR. These methods
+represent the current state-of-the-art approaches for textual
+moment retrieval and serve as strong baselines when adapted
+to video queries. Each of these approaches employs a
+different architectural design, with more recent methods
+like UniVTG leveraging unified vision-text encoders for
+improved cross-modal understanding, while earlier methods
+like Moment-DETR primarily rely on transformer-based
+encoders with cross-attention mechanisms. We compare with
+five variants of these methods. The zero-shot variant (a) uses a
+caption from mPLUG-OWL [70] to represent the query video ,
+and leverages the pretrained checkpoints. This approach tests
+how well existing models can transfer to our task without any
+task-specific training. Variants (b) and (c) both use a caption
+from mPLUG-OWL [70] to represent the query video, but
+train a randomly initialized checkpoint (variant b) or finetune
+the pre-trained checkpoint (variant c), respectively. Thesevariants evaluate whether task-specific training improves
+performance when using text representations of video queries.
+Though textual representations capture semantic content, they
+inevitably lose important visual and temporal nuances present
+in the original query videos, potentially limiting the upper
+bound on performance for these text-based variants. Variants
+(d) and (e) are equivalent to (b) and (c), where their CLIP
+text encoder is replaced by CLIP ViT/B-32 vision encoder,
+and therefore take the query video directly as input along
+with the target video. These latter variants provide the most
+direct comparison to our approach as they process video
+queries without converting to text intermediaries.
+4)Image-VMR methods :Our work focuses on video mo-
+ment retrieval using ‘video’ queries. As a single image query
+may not effectively capture the temporal aspects of a video
+query, this comparison may not be appropriate. However, we
+still design baselines by representing the video by its key-
+frame (more precisely, the middle frame) using Text-VMR
+methods, namely Moment-DETR, QD-DETR, and UniVTG.
+This simplified representation allows us to quantify the value
+of temporal information in query videos compared to static
+image representations.
+B.Implementation Details
+We choose a hidden dimension of 1024 withk= 4layers in
+both encoders and apply a dropout rate of 0.1and0.5within
+the transformer and linear projection layers, respectively.
+Model weights are initialized using Xavier initialization [73].
+To optimize the model parameters, we utilize the AdamW
+optimizer [74] with an initial learning rate of 1e-4 and a weight
+decay of 1e-4. Training was done on two NVIDIA A6000
+GPUs. We trained our model for 200 epochs with a batch size
+of 1200 while using ActivityNet-VRL. For SportsMoments,
+we used 40 epochs with a batch size of 40. We set the
+number of learnable queries l= 10 and all lambda ’s in
+both pre-training and finetuning losses to 1. We make our
+implementation available at: https://github.com/vl2g/MATR.
+C.Results and Discussion
+Table III shows our main results where we compare MATR
+with fully-supervised Vid2VidMR methods, VLMs, image-
+VMR methods, and five variants of each of the Text-VMR
+methods. As mentioned before, these variants correspond to
+zero-shot, finetuned, or trained setups. As usual, the trained
+setup implies random initialization, while the finetuned setup
+implies initialization using a pre-trained checkpoint (different
+for each architecture). Query video can be represented using
+text (T) captions or as the video (V) itself. For MATR, we
+show results with various video feature extraction backbones
+and sequence alignment methods. Following previous work,
+we report the standard mean Intersection over Union (mIoU)
+and Recall@1 IoU=0.5 metrics.
+1)Comparison with fully-supervised Vid2VidMR meth-
+ods:For a fair comparison, we directly use the reported
+results from original papers for fully-supervised methods on
+ActivityNet-VRL. Consequently, we do not report their results
+on SportsMoments. As shown in Table III, MATR outperforms
+8
+ActivityNet-VRL [61] SportsMoments
+Methods Variants Query Modality mIoU R@1 mIoU R@1Fully-supervisedRandom [7] - Video 7.3 16.2 - -
+Video Match [7] - Video 12.4 24.3 - -
+SST [63] - Video 17.1 33.2 - -
+CGBM [7] - Video 25.7 43.5 - -
+GDP [32] - Video 27.8 44.0 - -
+SRL [34] - Video 40.6 29.3 - -
+2D-TAN [66] - Video 45.3 39.6 - -
+MABAN [65] - Video 42.8 37.5 - -
+VSLNet [64] - Video 27.2 43.8 - -
+FFI+SRM [33] - Video 48.7 40.6 - -VLMsVideo-LLaV A [68] - Video 15.1 14.7 13.8 11.9
+Video-LLaMA [67] - Video 14.7 13.9 12.5 11.2
+Video-LLaMA2 [72] - Video 17.6 15.2 14.7 13.4
+TimeChat [69] - Video 26.4 23.8 22.6 21.3I-VMRMoment-DETR [1] - Image** 35.6 32.5 25.2 18.5
+QD-DETR [2] - Image** 37.2 38.1 27.7 20.7
+UniVTG [4] - Image** 38.8 42.0 34.6 37.2Text-VMRMoment-DETR [1](a) Zero-shot Text* 28.2 22.8 3.7 0.9
+(b) Trained Text* 37.1 35.8 31.4 29.2
+(c) Finetuned Text* 40.0 38.9 35.8 34.0
+(d) Trained Video 35.9 34.7 28.7 24.2
+(e) Finetuned Video 40.0 39.9 30.4 25.1
+QD-DETR [2](a) Zero-shot Text* 25.4 22.2 6.3 2.6
+(b) Trained Text* 38.4 39.0 29.8 27.2
+(c) Finetuned Text* 41.6 45.2 36.0 33.5
+(d) Trained Video 39.7 41.0 27.2 25.1
+(e) Finetuned Video 42.5 42.7 35.4 30.6
+UniVTG [4](a) Zero-shot Text* 32.4 26.7 11.4 6.0
+(b) Trained Text* 43.8 45.6 41.5 36.5
+(c) Finetuned Text* 45.8 46.4 44.8 39.2
+(d) Trained Video 48.4 49.8 43.2 39.5
+(e) Finetuned Video 49.1 50.7 43.6 41.8
+CG-DETR [3](a) Zero-shot Text* 25.9 21.9 3.3 1.6
+(b) Trained Text* 39.4 38.4 35.1 31.3
+(c) Finetuned Text* 41.0 43.2 35.4 32.5
+(d) Trained Video 40.0 41.7 36.6 35.1
+(e) Finetuned Video 40.1 41.7 37.2 34.8
+BM-DETR [71](a) Zero-shot Text* 30.6 25.1 8.3 5.7
+(b) Trained Text* 44.2 46.1 42.6 38.4
+(c) Finetuned Text* 46.1 46.7 45.2 39.6
+(d) Trained Video 50.7 53.2 45.6 44.2
+(e) Finetuned Video 50.9 53.7 47.6 44.9OursMATRTrained (CLIP [54] + soft-DTW [53]) Text* 49.3 50.1 48.4 47.9
+Finetuned (CLIP [54] + soft-DTW [53]) Text* 49.7 50.9 49.1 48.3
+Trained (CLIP [54] + soft-DTW [53]) Video 53.2 54.8 56.2 52.7
+Finetuned (CLIP [54] + soft-DTW [53])#Video 56.8 57.1 59.2 56.5
+Trained (CLIP [54] + OTAM [59]) Video 57.1 57.4 61.4 57.9
+Finetuned (CLIP [54] + OTAM [59]) Video 58.2 58.7 62.2 58.6
+Trained (Slow-Fast [27] + soft-DTW [53]) Video 54.7 55.9 58.3 55.4
+Finetuned (Slow-Fast [27] + soft-DTW [53]) Video 57.6 58.3 60.4 58.2
+Trained (Slow-Fast [27] + OTAM [59]) Video 58.3 57.9 62.2 59.1
+Finetuned (Slow-Fast [27] + OTAM [59]) Video 60.1 59.4 63.9 61.3
+TABLE III: Comparing MATR with fully-supervised Vid2VidMR methods, VLMs, image-VMR methods, and variants of Text-VMR methods.
+Trained implies random initialization. Finetuned implies initialization using a pre-trained (respective to each architecture) checkpoint. Query
+video can be represented using text captions or as the video itself. Since MATR is inherently designed to take a video query as input,
+experimenting with text captions is not needed. For more details of baselines and their variants, please refer to Section VI-A. Results for
+the overall best, best among implemented baselines, and previously reported SOTA are highlighted in bold, underline, and box, respectively.
+*: Text queries are derived from captions generated for the query videos. **: Image queries are represented using the middle frame of the
+corresponding query video.#: Best result reported in our earlier version [10].
+9
+Recall mAP
+Method R1@0.5 R1@0.7 mAP@0.5 mAP@0.75 Avg.
+Moment-DETR 53.9 34.8 - - 32.2
+QD-DETR 62.7 46.7 62.2 41.8 41.2
+UniVTG 59.7 45.8 61.9 41.9 38.8
+BM-DETR 63.6 46.8 63.7 43.5 44.2
+CG-DETR 67.4 52.1 65.6 45.7 44.9
+Ours (MATR) 64.3 54.2 61.1 44.0 42.5
+TABLE IV: Comparative Analysis of MATR versus State-of-the-Art
+Text-VMR Models on the QVHighlights Dataset. While primarily
+designed for video queries, our approach demonstrates competitive
+performance on text queries.
+ActivityNet-VRL SportsMoments
+Pre-Fusion Post-Fusion mIoU R@1 mIoU R@1
+✗ ✗ 49.7 50.2 49.1 46.6
+✗ ✓ 52.3 52.9 53.1 48.2
+✓ ✗ 50.4 51.2 52.4 46.7
+✓ ✓ 53.2 54.8 56.2 52.7
+TABLE V: Impact of Pre-Fusion and Post-Fusion Alignment Strate-
+gies on MATR Performance. This study is done with CLIP features,
+soft-DTW alignment and without pre-training.
+ActivityNet-VRL SportsMoments
+Pre-training Augmentation mIoU R@1 mIoU R@1
+✗ - 53.2 54.8 56.2 52.7
+✓ ✗ 54.1 55.6 56.9 53.6
+✓ ✓ 56.8 57.1 59.2 56.5
+TABLE VI: Impact of Pre-training and Data Augmentation on
+MATR Performance Across both Datasets. This study is done with
+CLIP features and soft-DTW alignment.
+the best method, FFI+SRM, with an 11.4% gain in mIoU and
+achieves a 15.4% improvement in R@1 over GDP, which had
+the highest recall. These results underscore MATR’s superior
+ability to accurately localize moments using video queries,
+validating its effectiveness across diverse and challenging
+benchmarks.
+2)Comparison with VLMs :Table III shows that our
+method MATR outperforms all four VLM-based baselines
+by a significant margin. This performance gap indicates
+the limitations of general-purpose vision-language models
+when applied to specialized temporal tasks without task-
+specific architectures. In comparison, the best-performing
+baseline, TimeChat [69], achieves 26.4% mIoU and 23.8%
+R@1 on ActivityNet-VRL, and 22.6% mIoU and 21.3%
+R@1 on SportsMoments. The performance difference be-
+tween TimeChat and our method (33.7% mIoU difference
+on ActivityNet-VRL and 41.3% mIoU on SportsMoments)
+highlights the importance of architectures specifically de-
+signed for temporal reasoning and alignment. Other methods,
+such as Video-LLaV A [68], Video-LLaMA [67], and Video-
+LLaMA2 [72], perform significantly worse. Despite the im-
+pressive general capabilities of these models in video under-
+standing tasks, their performance on the fine-grained temporal
+localization required for moment retrieval remains limited.
+These results show that task-specific models for Vid2VidMR
+are significantly better.
+3)Comparison with Text-VMR Methods :Table III shows
+that amongst the five variants , the finetuned variants are
+typically better than the trained variants, i.e., variant (c) is
+better than (b) and (e) is better than (d). On both ActivityNet-
+VRL and SportsMoments, BM-DETR achieves the best resultsamong variants that use video queries. However, our MATR
+model outperforms BM-DETR by 9.2% in mIoU and 5.7% in
+R@1 on ActivityNet-VRL. On SportsMoments, MATR shows
+a further improvement, surpassing BM-DETR by 16.3% in
+mIoU and 16.4% in R@1. These gains highlight the superior
+performance of MATR compared to the text-VMR methods
+when used with video query input. When text captions are
+used to represent the query, we observe similar trends as
+in the video query input case. Among the baselines, BM-
+DETR performs the best. However, MATR outperforms it by
+3.6% in mIoU and 4.2% in R@1 on ActivityNet-VRL. On
+SportsMoments, MATR achieves 3.9% higher mIoU and 8.7%
+higher R@1 than BM-DETR. These results demonstrate the
+superior performance of MATR compared to the text-VMR
+methods when used with text query input for Vid2VidMR .
+4)Comparison with Image-VMR :Table III shows that the
+best-performing approach, UniVTG [4], achieves a mIoU of
+38.8% and 42.0% R@1 on ActivityNet-VRL and 34.6% mIoU
+and R@1 37.2% on SportsMoments. This performance gap is
+particularly evident when comparing across different evalua-
+tion metrics and datasets, highlighting the inherent limitations
+of image-based representations for temporal tasks. Although
+this is comparable to previous fully supervised methods, it
+still lags significantly behind our MATR. The substantial
+performance difference (21.3% mIoU and 17.4% R@1 on
+ActivityNet-VRL, 29.3% mIoU and 24.1% R@1 on SportsMo-
+ments) demonstrates that video queries contain crucial motion
+patterns and temporal context that static images simply cannot
+capture. This further goes to show the importance of temporal
+dynamics captured by video queries as compared to static
+image queries.
+5)Comparison on Text-VMR task :Our method is de-
+signed for the vid2vid VMR task; however, it can be applied
+to the text-based Video Moment Retrieval task as well by
+simply replacing the query video encoder with a text encoder
+in MATR. We performed this experiment on the QVHigh-
+lights dataset [1] and report results in Table IV. The results
+demonstrate that our proposed model achieves competitive
+performance on the Text-VMR task on the QVHighlights
+dataset, particularly excelling in temporal boundary precision
+with the highest R1@0.7 score of 54.2%. While CG-DETR
+maintains superiority in most metrics (R1@0.5, mAP@0.5,
+mAP@0.75, and average mAP), our approach shows a notable
+2.1% improvement over CG-DETR in R1@0.7, suggesting
+better precision in temporal localization. The trade-off appears
+to be a slight decrease in mAP metrics compared to CG-
+DETR, though our model still outperforms earlier approaches
+like Moment-DETR and competes well with other recent
+methods.
+6)Advantage of Dual Sequence Alignment :Table V
+shows the impact of different alignment strategies in MATR
+on both datasets. We evaluate the effect of incorporating align-
+ment at the pre-fusion and post-fusion stages. The pre-fusion
+alignment helps establish initial cross-modal correspondences,
+while post-fusion alignment refines these relationships after
+contextual encoding. Our results indicate that the combined
+use of both pre-fusion and post-fusion alignment achieves the
+best performance, suggesting that alignment is important to
+10
+ActivityNet-VRL SportsMoments
+mIoU R@1 mIoU R@1
+Pre-fusion alignment ( Apre) 34.1 32.6 31.6 29.8
+Post-fusion alignment ( Apost) 38.3 35.2 36.4 33.5
+Prediction-heads 56.8 57.1 59.2 56.5
+TABLE VII: Advantage of predicting using prediction heads on the
+decoder. This study is done with CLIP features, soft-DTW alignment
+and with pre-training.
+ActivityNet-VRL SportsMoments
+Alignment mIoU R@1 mIoU R@1
+None 50.4 51.8 52.1 48.6
+TCC [37] 52.4 52.7 53.9 52.8
+Needleman-Wunsch [75] 50.8 51.2 52.6 49.5
+LCSS [76] 50.9 52.6 53.7 49.6
+Drop-DTW [9] 54.2 54.7 55.6 54.7
+Soft-DTW [77] 56.8 57.1 59.2 56.5
+OTAM [59] 58.2 58.7 62.2 58.6
+TABLE VIII: Performance Comparison of Sequence Alignment
+Methods. This comparison is done with CLIP features.
+ensure both before and after the encoder. This dual alignment
+strategy enables the model to progressively refine cross-modal
+relationships at multiple levels of abstraction. Models with
+alignment either before (pre) or after (post) show moderate
+gains over neither. The incremental improvements demonstrate
+that each alignment stage contributes uniquely to the model’s
+ability to localize moments. Removing post-fusion alignment
+hurts more than removing pre-fusion alignment, suggesting
+that post-fusion alignment is more important. This indicates
+that alignment after contextual encoding captures more seman-
+tically meaningful relationships between modalities. Omitting
+alignment entirely results in the lowest scores. The significant
+performance drop (3.5% mIoU on ActivityNet-VRL and 7.1%
+mIoU on SportsMoments) when removing both alignment
+stages emphasizes their complementary nature.
+7)Effect of Pre-training :We analyze the impact of pre-
+training and data augmentation on model performance in Ta-
+ble VI. On ActivityNet-VRL, without pre-training, the model
+achieves 53.2% mIoU and 54.8% R@1. Adding pre-training
+without augmentation yields 54.1% mIoU and 55.6% R@1,
+demonstrating the benefit of leveraging large-scale video-text
+datasets prior to task-specific fine-tuning. The best results are
+obtained by using pre-training with augmentation, leading to
+a significant boost to 56.8 mIoU and 57.1% R@1, a 3.6%
+improvement in mIoU over the baseline. Similar trends are
+observed on the SportsMoments dataset, where the full config-
+uration achieves 59.2% mIoU and 56.5% R@1, confirming the
+generalizability of our approach across different datasets. Dur-
+ing augmentation for each sampled clip, one of the following
+transformations is applied: reversing frames, adding Gaussian
+noise, slowing down the action, or increasing the action
+speed. These augmentations enhance the model’s robustness to
+temporal variations and noise, which are common challenges
+in real-world video understanding scenarios. The consistent
+performance improvements across both datasets highlight the
+importance of our two-stage training strategy in developing
+robust video moment retrieval systems.
+8)Predictions from Heads vs Alignment Matrices :Ta-
+ble VII shows that prediction heads outperform both pre-
+fusion and post-fusion alignment strategies across datasets.ActivityNet-VRL SportsMoments
+Feature mIoU R@1 mIoU R@1
+ResNet [78] 42.3 42.8 50.6 48.1
+I3D [79] 43.7 43.4 52.2 50.6
+S3D [26] 46.2 47.5 53.9 52.1
+C(2+1)D [80] 46.6 47.1 53.3 50.9
+CLIP [54] 53.2 54.8 56.2 52.7
+Slow-Fast [27] 54.7 55.9 58.3 55.4
+CLIP [54] + Slow-Fast [27] 52.5 53.4 52.6 51.4
+TABLE IX: Comparison of Video Feature Extraction Back-
+bones. Slow-Fast networks achieve superior performance across both
+datasets. This study was done with soft-DTW alignment and without
+pretraining.
+ActivityNet-VRL SportsMoments
+Noise Type mIoU R@1 mIoU R@1
+Frame Reverse 42.7 43.1 43.1 44.6
+Speed Variation 53.3 55.9 57.4 55.3
+Gaussian Noise 55.8 56.3 58.5 56.1
+None 56.8 57.1 59.2 56.5
+TABLE X: Robustness Analysis of MATR against Different Types
+of Perturbations. This study is done with CLIP features, soft-DTW
+alignment and with pre-training.
+This highlights the limitations of direct alignment in capturing
+fine temporal boundaries. The transformer decoder refines
+coarse alignments and models complex temporal relationships,
+leading to significant gains in mIoU and R@1. While post-
+fusion alignment performs better than pre-fusion, suggesting
+that fused features improve cross-modal matching, both are
+modest compared to the improvements from prediction heads.
+These results emphasize the decoder’s critical role in trans-
+forming alignment signals into precise moment predictions.
+9)Ablation on Alignment Losses :MATR can incorporate
+different alignment methods. Table VIII compares the perfor-
+mance of different alignment methods on both ActivityNet-
+VRL and SportsMoments datasets. Our extensive ablation
+study comparing different alignment methods for MATR
+reveals that OTAM achieves the best performance across
+both datasets, with substantial improvements of 7.8% and
+10.1% in R@1 over the baseline on ActivityNet-VRL and
+SportsMoments, respectively. Temporal alignment is clearly
+beneficial, as all methods outperform the non-aligned baseline,
+with sophisticated approaches like OTAM and DTW show-
+ing particularly strong gains. Among the evaluated methods,
+OTAM consistently achieves the highest performance (58.2%
+mIoU, 58.7% R@1 on ActivityNet-VRL and 62.2% mIoU,
+58.6% R@1 on SportsMoments), followed closely by soft-
+DTW, which demonstrates the second-best results across both
+datasets. The performance improvements from simpler align-
+ment methods like TCC and LCSS are more modest but still
+significant, confirming that the choice of alignment algorithm
+plays a crucial role in moment retrieval performance.
+10)Ablation on Feature Backbones :The ablation study
+in Table IX on feature backbones for MATR demonstrates
+that more advanced video feature extractors consistently yield
+better performance across both evaluated datasets. Specifically,
+Slow-Fast achieves the highest performance with 54.7% mIoU
+and 55.9% R@1 on the ActivityNet-VRL dataset, and 58.3%
+mIoU and 55.4% R@1 on the SportsMoments dataset, show-
+ing a clear advantage over traditional architectures like ResNet
+and I3D. Interestingly, CLIP also performs strongly, suggest-
+11
+Query Video Target Video 
+Ground Truth [2.1, 18.1] 
+MATR (Ours) [3.2, 16.6] 
+UniVTG [7.3, 18.4] 
+Moment-DETR [7, 12] 
+QD-DETR [5.9, 12.8] 
+CG-DETR [6.3, 18.7] 
+… 
+Ground Truth [10.8, 28.1] 
+MATR (Ours) [10.3, 27.8] 
+UniVTG [12.3, 29.1] 
+Moment-DETR [11.4, 28.5] 
+QD-DETR [9.2, 27.8] 
+CG-DETR [10, 29.8] 
+… 
+Ground Truth [13.8, 18.1] 
+MATR (Ours) [13.8, 17.9] 
+UniVTG [8, 17.3] 
+Moment-DETR[9, 22.2] 
+QD-DETR [11.2, 14.1] 
+CG-DETR [14.8, 23.6] 
+… 
+Ground Truth [6.6, 16.7] 
+MATR (Ours) [6.2, 16.7] 
+UniVTG [5.5, 14.1] 
+Moment-DETR [4, 12.5] 
+QD-DETR [5.8, 13.8] 
+CG-DETR [8.4, 16.1] 
+… BM-DETR [6.1, 19.1] 
+BM-DETR [10.9, 28.8] 
+BM-DETR[12.2, 19.3] 
+BM-DETR [5, 17.2] 
+Fig. 4: Visualization of Vid2VidMR on four query-target samples. Our proposed MATR model shows improved generalization capabilities
+over the best-performing baseline methods (variant (e), i.e., finetuned with video query input). The method consistently produces predictions
+that closely align with ground truth boundaries, effectively handling challenging conditions such as significant viewpoint changes (Example
+1’s rodeo scene), multi-shot sequences with varying camera angles (Example 2’s soccer match), and cross-context matching between different
+environments (Example 3’s pole vault training vs. competition). Unlike methods such as CG-DETR and BM-DETR that tend to over-predict
+by generating excessively long intervals, MATR strikes an optimal balance between precision and recall, accurately identifying both start
+and end points of relevant moments.
+12
+ing that vision-language pre-training provides valuable trans-
+ferable features for moment retrieval tasks. Surprisingly, the
+combination of CLIP and Slow-Fast features doesn’t lead to
+further improvements and actually performs worse than either
+backbone individually, indicating potential feature redundancy
+or integration challenges that warrant further investigation in
+future work.
+11)Robustness study of MATR :To simulate noisy queries,
+we perturb input videos with Gaussian noise, speed variations,
+and frame reversal. From the robustness study in Table X,
+we observe that MATR shows a strong resilience to Gaussian
+noise and speed changes, with only 1.0% and 3.5% mIoU
+drops in ActivityNet-VRL, respectively. In contrast, frame
+reversal leads to a 14.1% mIoU decline, indicating that the
+temporal direction remains a critical signal. Overall, while
+MATR handles low-level and temporal jitter well, it remains
+appropriately sensitive to semantic query relevance.
+12)Qualitative Results :We present moment retrieval re-
+sults on four samples in Fig. 4, where we compare our
+proposed approach to variant (e) (refer to Sec.VI-A for details)
+of the four best-performing baselines. Our proposed MATR
+model exhibits the highest overlap with the ground truth for
+the given query, accurately identifying the correct temporal
+boundaries. The method consistently produces predictions
+that closely align with ground truth boundaries, effectively
+handling challenging conditions such as significant viewpoint
+changes (Example 1’s rodeo scene), multi-shot sequences with
+varying camera angles (Example 2’s soccer match), and cross-
+context matching between different environments (Example
+3’s pole vault training vs. competition). Unlike methods such
+as CG-DETR and BM-DETR that tend to over-predict by gen-
+erating excessively long intervals, MATR strikes an optimal
+balance between precision and recall, accurately identifying
+both start and end points of relevant moments.
+VII. CONCLUSION
+We introduced MATR, a well-motivated approach for
+Vid2VidMR . By combining the abstract representation of the
+encoder and the refined fine-grained features of the decoder
+conditioned on aligned query features, MATR effectively
+captures both semantic and temporal information, enabling
+accurate moment localization. Our self-supervised pre-training
+strategy further improves the model initialization and boosts
+performance. Extensive experiments showed that MATR out-
+performs strong baselines on both ActivityNet-VRL and our
+novel SportsMoments dataset, showcasing its effectiveness
+in tackling this challenging task. Although MATR excels at
+localizing moments using video queries, future research can
+extend it to multimodal queries and develop more efficient
+architectures to enhance scalability for Vid2VidMR .
+Acknowledgment: This work is supported by the Microsoft
+Academic Partnership Grant (MAPG) 2023. Yogesh Kumar is
+supported by a UGC NET-JRF fellowship, Govt. of India.
+REFERENCES
+[1] J. Lei, T. L. Berg, and M. Bansal, “Detecting moments and
+highlights in videos via natural language queries,” in Conferenceon Neural Information Processing Systems (NeurIPS) , 2021, pp.
+11 846–11 858.
+[2] W. Moon, S. Hyun, S. Park, D. Park, and J. Heo, “Query
+- dependent video representation for moment retrieval and
+highlight detection,” in CVPR , 2023, pp. 23 023–23 033.
+[3] W. Moon, S. Hyun, S. B. Lee, and J. Heo, “Correlation-guided
+query-dependency calibration in video representation learning
+for temporal grounding,” CoRR , vol. abs/2311.08835, 2023.
+[4] K. Q. Lin, P. Zhang, J. Chen, S. Pramanick, D. Gao, A. J.
+Wang, R. Yan, and M. Z. Shou, “Univtg: Towards unified video-
+language temporal grounding,” in International Conference on
+Computer Vision (ICCV) , 2023, pp. 2794–2804.
+[5] J. Yang, P. Wei, H. Li, and Z. Ren, “Task-driven exploration:
+Decoupling and inter-task feedback for joint moment retrieval
+and highlight detection,” in CVPR , 2024, pp. 18 308–18 318.
+[6] Y . Yuan, L. Ma, J. Wang, W. Liu, and W. Zhu, “Semantic con-
+ditioned dynamic modulation for temporal sentence grounding
+in videos,” IEEE Transactions on Pattern Analysis & Machine
+Intelligence , vol. 44, no. 05, pp. 2725–2741, 2022.
+[7] Y . Feng, L. Ma, W. Liu, T. Zhang, and J. Luo, “Video re-
+localization,” in European Conference on Computer Vision
+(ECCV) , 2018, pp. 51–66.
+[8] H. Sakoe and S. Chiba, “Dynamic programming algorithm opti-
+mization for spoken processing recognition,” International Con-
+ference on Acoustics, Speech, and Signal Processing (ICASSP) ,
+vol. 26, pp. 43–49, 1978.
+[9] N. Dvornik, I. Hadji, K. G. Derpanis, A. Garg, and A. D. Jep-
+son, “Drop-DTW: Aligning common signal between sequences
+while dropping outliers,” in Conference on Neural Information
+Processing Systems (NeurIPS) , 2021, pp. 13 782–13 793.
+[10] Y . Kumar, U. Agarwal, M. Gupta, and A. Mishra, “Aligning mo-
+ments in time using video queries,” in International Conference
+on Computer Vision, ICCV , 2025.
+[11] L. A. Hendricks, O. Wang, E. Shechtman, J. Sivic, T. Darrell,
+and B. C. Russell, “Localizing moments in video with natural
+language,” in International Conference on Computer Vision
+(ICCV) , 2017, pp. 5803–5812.
+[12] J. Lei, L. Yu, T. L. Berg, and M. Bansal, “TVR: A large-
+scale dataset for video-subtitle moment retrieval,” in European
+Conference on Computer Vision (ECCV) , 2020, pp. 447–463.
+[13] J. Gao, C. Sun, Z. Yang, and R. Nevatia, “TALL: temporal activ-
+ity localization via language query,” in International Conference
+on Computer Vision (ICCV) , 2017, pp. 5267–5275.
+[14] Y . Xiao, Z. Luo, Y . Liu, Y . Ma, H. Bian, Y . Ji, Y . Yang,
+and X. Li, “Bridging the gap: A unified video comprehension
+framework for moment retrieval and highlight detection,” in
+CVPR , 2024, pp. 18 709–18 716.
+[15] S. Yan, X. Xiong, A. Nagrani, A. Arnab, Z. Wang, W. Ge,
+D. Ross, and C. Schmid, “Unloc: A unified framework for video
+localization tasks,” in International Conference on Computer
+Vision (ICCV) , 2023, pp. 15 290–15 300.
+[16] Y . Liu, S. Li, Y . Wu, C. W. Chen, Y . Shan, and X. Qie, “UMT:
+unified multi-modal transformers for joint video moment re-
+trieval and highlight detection,” in CVPR , 2022, pp. 3042–3051.
+[17] J. Mun, M. Cho, , and B. Han, “Local-Global Video-Text
+Interactions for Temporal Grounding,” in CVPR , 2020, pp.
+10 810–10 819.
+[18] U. Agarwal, Y . Kumar, A. Shahid, P. Gatti, M. Gupta, and
+A. Mishra, “CHAPVIDMR: Chapter-based video moment re-
+trieval using natural language queries,” in ICVGIP , 2024.
+[19] W. Zhengxuan, T. Jiajin, and Y . Sibei, “Augmenting moment
+retrieval: Zero-dependency two-stage learning,” in ICCV , 2025.
+[20] H.-L. Tran, T.-A. Nguyen-Nhu, H.-P. Phan-Nguyen, T.-H.
+Nguyen, N.-M. Nguyen-Dich, A. Dao, H.-D. Do, Q. Nguyen,
+H. M. Le, and Q.-V . Dinh, “Towards efficient and robust
+moment retrieval system: A unified framework for multi-
+granularity models and temporal reranking,” in CVPR , 2025.
+[21] K. Simonyan and A. Zisserman, “Two-stream convolutional
+networks for action recognition in videos,” in Conference on
+13
+Neural Information Processing Systems (NeurIPS) , 2014.
+[22] J. Lin, C. Gan, and S. Han, “TSM: temporal shift module for
+efficient video understanding,” in International Conference on
+Computer Vision (ICCV) , 2019, pp. 7083–7093.
+[23] C. Yang, Y . Xu, J. Shi, B. Dai, and B. Zhou, “Temporal pyramid
+network for action recognition,” in CVPR , 2020, pp. 591–600.
+[24] D. Tran, L. D. Bourdev, R. Fergus, L. Torresani, and M. Paluri,
+“Learning spatiotemporal features with 3d convolutional net-
+works,” in International Conference on Computer Vision
+(ICCV) , 2015, pp. 4489–4497.
+[25] J. Carreira and A. Zisserman, “Quo vadis, action recognition?
+A new model and the kinetics dataset,” in CVPR , 2017, pp.
+6299–6308.
+[26] S. Xie, C. Sun, J. Huang, Z. Tu, and K. Murphy, “Rethinking
+spatiotemporal feature learning: Speed-accuracy trade-offs in
+video classification,” in European Conference on Computer
+Vision (ECCV), 2018 , 2018, pp. 305–321.
+[27] C. Feichtenhofer, H. Fan, J. Malik, and K. He, “Slowfast
+networks for video recognition,” in International Conference
+on Computer Vision (ICCV) , 2019, pp. 6202–6211.
+[28] C. Zhang, A. Gupta, and A. Zisserman, “Temporal query
+networks for fine-grained video understanding,” in CVPR , 2021,
+pp. 4486–4496.
+[29] R. Zeng, W. Huang, M. Tan, Y . Rong, P. Zhao, J. Huang,
+and C. Gan, “Graph convolutional networks for temporal action
+localization,” in CVPR , 2019, pp. 7094–7103.
+[30] Z. Zhu, W. Tang, L. Wang, N. Zheng, and G. Hua, “Enriching
+local and global contexts for temporal action localization,” in
+International Conference on Computer Vision (ICCV) , 2021, pp.
+13 516–13 525.
+[31] Z. Shou, D. Wang, and S.-F. Chang, “Temporal action localiza-
+tion in untrimmed videos via multi-stage cnns,” in CVPR , 2016,
+pp. 1049–1058.
+[32] L. Chen, C. Lu, S. Tang, J. Xiao, D. Zhang, C. Tan, and X. Li,
+“Rethinking the bottom-up framework for query-based video
+localization,” in Association for the Advancement of Artificial
+Intelligence , 2020, pp. 10 551–10 558.
+[33] S. Huo, Y . Zhou, R. Wang, W. Xiang, and S. Kung, “Se-
+mantic relevance learning for video-query based video moment
+retrieval,” IEEE Trans. Multim. , vol. 25, pp. 9290–9301, 2023.
+[34] R. Wang and Y . Zhou, “A feature pair fusion and hierarchical
+learning framework for video re-localization,” in International
+Conference on Image Processing , 2020, pp. 2341–2345.
+[35] X. Wang, L. Zhu, and Y . Yang, “T2vlad: global-local sequence
+alignment for text-video retrieval,” in CVPR , 2021, pp. 5079–
+5088.
+[36] P. Dogan, B. Li, L. Sigal, and M. Gross, “A neural multi-
+sequence alignment technique (neumatch),” in CVPR , 2018.
+[37] D. Dwibedi, Y . Aytar, J. Tompson, P. Sermanet, and A. Zis-
+serman, “Temporal cycle-consistency learning,” in Conference
+on Computer Vision and Pattern Recognition , 2019, pp. 1801–
+1810.
+[38] D. M. Argaw, J.-Y . Lee, M. Woodson, I.-S. Kweon, and
+F. C. Heilbron, “Long-range multimodal pretraining for movie
+understanding,” International Conference on Computer Vision
+(ICCV) , pp. 19 872–19 882, 2023.
+[39] Rao, Gritai, and Shah, “View-invariant alignment and matching
+of video sequences,” in International Conference on Computer
+Vision (ICCV) , 2003.
+[40] F. Padua, R. Carceroni, G. Santos, and K. Kutulakos, “Linear
+sequence-to-sequence alignment,” IEEE Trans. Pattern Anal.
+Mach. Intell. , vol. 32, pp. 304–320, 2008.
+[41] N. C. Mithun, S. Paul, and A. K. Roy-Chowdhury, “Weakly
+supervised video moment retrieval from text queries,” in CVPR ,
+2019, pp. 11 592–11 601.
+[42] M. Jung, Y . Jang, S. Choi, J. Kim, J.-H. Kim, and B.-T. Zhang,
+“Background-aware moment detection for video moment re-
+trieval,” in IEEE/CVF Winter Conference on Applications of
+Computer Vision (WACV) , 2025, pp. 1234–1243.[43] J. Achiam, S. Adler, S. Agarwal, L. Ahmad, I. Akkaya,
+F. L. Aleman, D. Almeida, J. Altenschmidt, S. Altman,
+S. Anadkat et al. , “GPT-4 technical report,” arXiv preprint
+arXiv:2303.08774 , 2023.
+[44] R. Girdhar, A. El-Nouby, Z. Liu, M. Singh, K. V . Alwala,
+A. Joulin, and I. Misra, “Imagebind: One embedding space to
+bind them all,” in CVPR , 2023.
+[45] R. Qian, T. Meng, B. Gong, M.-H. Yang, H. Wang, S. Belongie,
+and Y . Cui, “Spatiotemporal contrastive video representation
+learning,” in CVPR , 2021, pp. 6964–6974.
+[46] A. Piergiovanni, A. Angelova, and M. S. Ryoo, “Evolving losses
+for unsupervised video representation learning,” in CVPR , 2020,
+pp. 133–142.
+[47] J. Wang, Y . Gao, K. Li, J. Hu, X. Jiang, X. Guo, R. Ji, and
+X. Sun, “Enhancing unsupervised video representation learning
+by decoupling the scene and the motion,” in Association for the
+Advancement of Artificial Intelligence (AAAI) , 2021, pp. 2761–
+2769.
+[48] Y . Kumar, S. Mallick, A. Mishra, S. Rasipuram, A. Maitra, and
+R. Ramnani, “Qdetrv: Query-guided detr for one-shot object
+localization in videos,” in Association for the Advancement of
+Artificial Intelligence (AAAI) , 2024, pp. 3691–3699.
+[49] H.-Y . Lee, J.-B. Huang, M. Singh, and M.-H. Yang, “Un-
+supervised representation learning by sorting sequences,” in
+International Conference on Computer Vision (ICCV) , 2017, pp.
+667–676.
+[50] N. Srivastava, E. Mansimov, and R. Salakhudinov, “Unsuper-
+vised learning of video representations using lstms,” in Inter-
+national Conference on Machine Learning (ICML) , 2015, pp.
+843–852.
+[51] G. Wang, Y . Zhou, C. Luo, W. Xie, W. Zeng, and Z. Xiong, “Un-
+supervised visual representation learning by tracking patches in
+video,” in CVPR , 2021, pp. 2568–2577.
+[52] H. Sakoe and S. Chiba, “Dynamic programming algorithm
+optimization for spoken word recognition,” International Con-
+ference on Acoustics, Speech, and Signal Processing (ICASSP) ,
+vol. 26, no. 1, pp. 43–49, 1978.
+[53] M. Cuturi and M. Blondel, “Soft-dtw: a differentiable loss func-
+tion for time-series,” in International Conference on Machine
+Learning (ICML) , 2017, pp. 894–903.
+[54] A. Radford, J. W. Kim, C. Hallacy, A. Ramesh, G. Goh, S. Agar-
+wal, G. Sastry, A. Askell, P. Mishkin, J. Clark, G. Krueger, and
+I. Sutskever, “Learning transferable visual models from natural
+language supervision,” in International Conference on Machine
+Learning (ICML) , 2021, pp. 8748–8763.
+[55] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones,
+A. N. Gomez, L. Kaiser, and I. Polosukhin, “Attention is all
+you need,” in Conference on Neural Information Processing
+Systems (NeurIPS) , 2017, p. 6000–6010.
+[56] N. Carion, F. Massa, G. Synnaeve, N. Usunier, A. Kirillov, and
+S. Zagoruyko, “End-to-end object detection with transformers,”
+inEuropean Conference on Computer Vision (ECCV) , 2020, pp.
+213–229.
+[57] N. Parmar, A. Vaswani, J. Uszkoreit, L. Kaiser, N. Shazeer,
+A. Ku, and D. Tran, “Image transformer,” in International
+Conference on Machine Learning (ICML) , 2018, pp. 4055–
+4064.
+[58] I. Bello, B. Zoph, Q. Le, A. Vaswani, and J. Shlens, “Attention
+augmented convolutional networks,” in International Confer-
+ence on Computer Vision (ICCV) , 2019, pp. 3286–3295.
+[59] K. Cao, J. Ji, Z. Cao, C. Chang, and J. C. Niebles, “Few-shot
+video classification via temporal alignment,” in CVPR , 2020,
+pp. 10 618–10 627.
+[60] H. Rezatofighi, N. Tsoi, J. Gwak, A. Sadeghian, I. Reid, and
+S. Savarese, “Generalized intersection over union: A metric and
+a loss for bounding box regression,” in CVPR , 2019, pp. 658–
+666.
+[61] F. C. Heilbron, V . Escorcia, B. Ghanem, and J. C. Niebles,
+“Activitynet: A large-scale video benchmark for human activity
+14
+understanding,” in CVPR , 2015, pp. 961–970.
+[62] A. Karpathy, G. Toderici, S. Shetty, T. Leung, R. Sukthankar,
+and L. Fei-Fei, “Large-scale video classification with convolu-
+tional neural networks,” in CVPR , 2014, pp. 1725–1732.
+[63] S. Buch, V . Escorcia, C. Shen, B. Ghanem, and J. C. Niebles,
+“SST: single-stream temporal action proposals,” in CVPR , 2017,
+pp. 2911–2920.
+[64] H. Zhang, A. Sun, W. Jing, L. Zhen, J. T. Zhou, and R. S. M.
+Goh, “Natural language video localization: A revisit in span-
+based question answering framework,” IEEE Trans. Pattern
+Anal. Mach. Intell. , vol. 44, no. 8, pp. 4252–4266, 2022.
+[65] X. Sun, H. Wang, and B. He, “MABAN: multi-agent boundary-
+aware network for natural language moment retrieval,” IEEE
+Trans. Image Process. , pp. 5884–5896, 2021.
+[66] S. Zhang, H. Peng, J. Fu, and J. Luo, “Learning 2d temporal ad-
+jacent networks for moment localization with natural language,”
+inAssociation for the Advancement of Artificial Intelligence
+(AAAI) , 2020, pp. 12 870–12 877.
+[67] H. Zhang, X. Li, and L. Bing, “Video-LLaMA: An instruction-
+tuned audio-visual language model for video understanding,” in
+Empirical Methods in Natural Language Processing (EMNLP) ,
+2023, pp. 543–553.
+[68] B. Lin, B. Zhu, Y . Ye, M. Ning, P. Jin, and L. Yuan, “Video-
+llava: Learning united visual representation by alignment be-
+fore projection,” in Empirical Methods in Natural Language
+Processing (EMNLP) , 2024, pp. 5971–5984.
+[69] S. Ren, L. Yao, S. Li, X. Sun, and L. Hou, “Timechat: A
+time-sensitive multimodal large language model for long video
+understanding,” in CVPR , 2024, pp. 14 313–14 323.
+[70] Q. Ye, H. Xu, J. Ye, M. Yan, A. Hu, H. Liu, Q. Qian,
+J. Zhang, F. Huang, and J. Zhou, “mplug-owi2: Revolutionizing
+multi-modal large language model with modality collaboration,”
+CVPR , pp. 13 040–13 051, 2024.
+[71] M. Jung, Y . Jang, S. Choi, J. Kim, J.-H. Kim, and B.-T. Zhang,
+“Background-aware moment detection for video moment re-
+trieval,” in IEEE/CVF Winter Conference on Applications of
+Computer Vision (WACV) , 2025, pp. 3717–3726.
+[72] Z. Cheng, S. Leng, H. Zhang, Y . Xin, X. Li, G. Chen, Y . Zhu,
+W. Zhang, Z. Luo, D. Zhao, and L. Bing, “Videollama 2:
+Advancing spatial-temporal modeling and audio understanding
+in video-llms,” arXiv preprint arXiv:2406.07476 , 2024.
+[73] X. Glorot and Y . Bengio, “Understanding the difficulty of
+training deep feedforward neural networks,” in International
+Conference on Artificial Intelligence and Statistics , 2010, pp.
+249–256.
+[74] I. Loshchilov and F. Hutter, “Decoupled weight decay regular-
+ization,” in International Conference on Learning Representa-
+tions, ICLR 2019 , 2019.
+[75] S. B. Needleman and C. D. Wunsch, “A general method
+applicable to the search for similarities in the amino acid
+sequence of two proteins,” Journal of Molecular Biology , pp.
+443–453, 1970.
+[76] N. Nakatsu, Y . Kambayashi, and S. Yajima, “A longest common
+subsequence algorithm suitable for similar text strings,” Acta
+Inf., pp. 133–142, 1982.
+[77] M. Cuturi and M. Blondel, “Soft-DTW: A differentiable loss
+function for time-series,” in International Conference on Ma-
+chine Learning (ICML) , 2017, pp. 894–903.
+[78] K. He, X. Zhang, S. Ren, and J. Sun, “Deep residual learning
+for image recognition,” in CVPR , 2016, pp. 770–778.
+[79] J. Carreira and A. Zisserman, “Quo vadis, action recognition? a
+new model and the kinetics dataset,” in CVPR , 2017, pp. 6299–
+6308.
+[80] D. Tran, H. Wang, L. Torresani, J. Ray, Y . LeCun, and M. Paluri,
+“A closer look at spatiotemporal convolutions for action recog-
+nition,” in CVPR , 2018, pp. 6450–6459.
+Yogesh Kumar ( Student Member, IEEE )Yogesh
+Kumar is a Ph.D. scholar at IIT Jodhpur, specializing
+in video understanding within the VL2G under the
+supervision of Dr. Anand Mishra. His research fo-
+cuses on grounding visual elements in videos, such
+as objects, relationships, and actions/moments. He
+completed his M.Tech in Artificial Intelligence at
+IIT Jodhpur. He has publications in CVPR 2023,
+ICCV 2025, AAAI 2024, and is recognized as an
+outstanding reviewer at BMVC 2024.
+Uday Agarwal Uday Agarwal is a Research As-
+sistant with the VL2G at IIT Jodhpur, advised by
+Dr. Anand Mishra. His primary research focuses
+on Video Understanding and Vision-Language Mod-
+els. He has worked on projects spanning moment
+retrieval using multi-modal queries and healthcare
+applications of AI. He has contributed to research
+published at ICCV and ICVGIP and has assisted in
+reviewing papers for conferences like BMVC, ICPR.
+Dr. Manish Gupta is a Principal Applied Re-
+searcher at Microsoft India R&D Private Limited
+at Hyderabad, India. He is also an Adjunct Faculty
+at International Institute of Information Technology,
+Hyderabad and a visiting faculty at Indian School of
+Business, Hyderabad. He received his Ph.D. from the
+University of Illinois at Urbana-Champaign in 2013.
+Before this, he worked for Yahoo! Bangalore for two
+years. His research interests are in the areas of deep
+learning, natural language processing, web mining
+and data mining. He has published more than 200
+research papers in reputed refereed journals and conferences. He has also co-
+authored two books: one on Outlier Detection for Temporal Data and another
+one on Information Retrieval with Verbose Queries.
+Dr. Anand Mishra (Member, IEEE) serves as an
+Assistant Professor at the Department of Computer
+Science and Engineering and an affiliate faculty
+member at the School of AI and Data Science
+at IIT Jodhpur. He leads the Vision, Language,
+and Learning Group (VL2G) at IIT Jodhpur, which
+focuses on problems that intersect vision and lan-
+guage. Anand’s research group has been generously
+supported through various industry and government
+of India grants, including MAPG 2021 and 2023 by
+Microsoft R&D, MeitY Grant on National Language
+Translation Mission, a Gift Grant from Accenture, a grant from Health-
+CareNLP and a Start-up Research Grant from SERB. Anand was recognized
+as an outstanding reviewer at ICCV 2021 and CVPR 2023. He is serving as
+a Program Chair for ICVGIP 2025 and as an Area Chair for CVPR 2026.

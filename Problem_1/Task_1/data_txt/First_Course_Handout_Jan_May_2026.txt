@@ -1,0 +1,29 @@
+Fluid Mechanics Lab  (MEP 3990) (0-0-2) [Semester -2, Jan -April 2025] 
+ Instructor: Dr. Praveen Kumar Sappidi   Department of Chemical Engineering,  
+   Email: praveenks@iitj.ac.in; Ph: 0291 -280-1712   IIT Jodhpur  
+Lab Timings  
+Friday 1 to 2:50 PM  
+ 
+Evaluation  
+• Attendance is must for all the laboratory ’s.  
+• Total evaluation is divided into two segments 50 % for examination  & 50 % for  
+continues.  
+  
+Examination  ( 50 % ) Continues  (50 %) 
+Lab Exam  40 % Regular Lab reports  50 % 
+Viva Voce  10 %   
+ 
+ 
+Tentative List of Laboratory Experiments   
+ 
+1. Benoulli’s Theorem A pparatus  
+2. Reynolds  Apparatus  
+3. Fluid Friction Measurement  Apparatus  
+4. Pitot Tube Test Rig  
+5. Discharge through venturi meter , orifice meter, and rotameter apparatus  
+6. Drag Coefficient  Apparatus  
+7. Hydrodynamics of packed bed apparatus  
+8. Centrifugal pump test rig  
+9. Boundary  layer test rig  
+10. Cavitation apparatus  
+11. Flow through fluidized bed apparatus  

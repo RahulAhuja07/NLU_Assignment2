@@ -1,0 +1,775 @@
+Computational Analysis oftheFormation, Dissociation, andStability
+ofSurface Carbonates over Nickel
+SarojKumariandParagA.Deshpande*
+CiteThis:J.Phys.Chem.C2025,129,22403−22411
+ Read Online
+ACCESS
+ Metrics &More
+ Article Recommendations +sıSupporting Information
+ABSTRACT: Weconducted acomprehensive investigation oftheformation, stability,
+adsorption geometry, electronic structure, anddissociation ofsurfacecarbonate overlow-
+indexNisurfacesusingDFTcalculations. Thedifferingreactivity ofNisurfacesincarbonate
+formation iselucidated throughenergyprofileshighlighting theformation mechanism. The
+studyfocusedontheformation ofsurfacecarbonate throughinteractions betweenOandCO2
+anditssubsequent dissociation onNi(100), Ni(110), andNi(111)surfaces.Wedelveintothe
+mechanistic intricacies oftheinfluence ofprecovered oxygenated surfacespecies,particularly O
+atomsoncarbonate formation undervaryingconditions. Ourfindingsincludeenergyprofilesfor
+thereaction underdifferent conditions, offeringvaluable insightsintotheviabilityand
+accessibility ofdiversepathways forcarbonate formation anddissociation reactions onlow-index
+Nisurfaces.Theanalysisofcarbonate dissociation presented inthisarticlesuggeststhatsurface
+carbonate primarily dissociates throughthecleavageofCandadsorbed O.Thiscomputational
+analysisprovides valuableinsightsthatcanbebeneficial forthedesignanddevelopment of
+heterogeneous catalystsforbiomimetic CO2hydration, withpotential applications inindustrial
+CO2capturesystems.
+1.INTRODUCTION
+Catalytic conversion ofCO2tomineralcarbonates viathe
+formation ofbicarbonate ionsholdsimmense potential in
+addressing climatechange,offeringapractical waytoward
+achieving amoresustainable andcarbon-neutral future.
+Mineralization, alsocalledmineralcarbonation,1involvesthe
+reactionofCO2withnaturallyoccurring mineralstoformstable
+carbonates, securelysequestering CO2forextended periods.
+Thismethodpromisespermanent carbonstorage,astheformed
+carbonates arehighlystable,minimizing leakagerisksand
+accidental emission.2,3CO2mineralization isatwo-stepprocess
+involving theformation ofbicarbonate ionsbyCO2hydration
+(CO2+H2O↔HCO3−+H+),followed bytheuseof
+bicarbonate ionstoprecipitate themineralcarbonates. The
+catalytic bicarbonate formation reaction, however, canbe
+potentially sabotaged bysurfacecarbonate formation, apathway
+thatisanalternative tosurfacebicarbonate formation. The
+formation ofsurfacecarbonates overtransition metalsisawell-
+knownphenomenon, especially withrelevance tosurface
+catalysis. Thisobservation intrigued ustoenvisagethisstudy,
+assessingthepossibility offormation ofsurfacecarbonates over
+NiduringCO2hydration andthestructure sensitivity ofthe
+stabilityofsurfacecarbonates overlow-index Nisurfaceplanes
+(100,110,and111).
+DuringCO2hydration, theprimaryinteraction oftheNi
+surfacelayeroccurswithH2O,leadingtotheformation of
+surfacehydroxyls, whichinteractwithCO2,leadingtothe
+formation ofsurfacebicarbonates. Thebiomimetic natureofthis
+reaction alongwithfinermechanistic detailshavebeenelaborated byusinourprevious studies.4−7Otherstudies
+furthersupportourobservations thattheadsorption and
+dissociation ofH2O8−11andCO212−14overlow-index Ni
+surfacesarestructure sensitive. Whileconsidering thesurface-
+sensitiveinteraction ofH2OwithNi,sequential dissociation of
+H2Oisapotentialscenarioresultinginthesurfaceinteractions
+ofCO2withOformedbythecomplete dissociation ofH2O.
+Thisaspecthaslargelyremained unnoticed, moresofromthe
+viewpoint ofstructure sensitivity, butitisvitaltobeanalyzed
+owingtothepossibility oftheformation ofsurfacecarbonates.
+Mohsenzadeh etal.,8intheirDFTinvestigation ofH2O
+adsorption anddissociation overdifferentNisurfaces,observed
+OHdissociation tobestructure sensitive, withthedissociation
+ratesofOHfollowing theorder:Ni(110)>Ni(100)>Ni(111).
+Zhuetal.investigated theOHdissociation overNisurfacesand
+reportedittobeexothermic overNi(111)andNi(100),whileit
+wasendothermic overNi(110).15,16Itisoffundamental aswell
+astechnological interesttoinvestigate thecompetitiveness of
+thesequential dissociation ofH2O,enablingOH−CO 2aswellas
+O−CO 2surfaceinteractions, leadingtotheformation ofsurface
+carbonates insteadofthedesiredbicarbonate ions.
+Received: September 19,2025
+Revised: November 26,2025
+Accepted: December 1,2025
+Published: December 12,2025
+Article pubs.acs.org/JPCC
+©2025American ChemicalSociety
+22403https://doi.org/10.1021/acs.jpcc.5c06540
+J.Phys.Chem.C2025,129,22403−22411
+Downloaded via INDIAN INST OF TECH JODHPUR on March 18, 2026 at 19:42:05 (UTC).
+See https://pubs.acs.org/sharingguidelines for options on how to legitimately share published articles.
+
+Theobservation ofsurfacecarbonates duringspectroscopic
+analysesprobingthemechanistic detailsofalargenumberof
+heterogeneously catalyzed reactionsinvolving CO2asoneofthe
+reactants hasmotivated severalinvestigators tostudythe
+interaction ofCO2withoxygen-modified transition metals.
+Focusing onNiinthecurrentcontext,Behmetal.17studiedthe
+formation surfacecarbonates overNi(100)bythereactionofO2
+andCO2andobserved substantial amounts ofsurface
+carbonates, whichinhibited theoxidation ofthesurface.They
+observed thatthebonding andstabilization ofthesurface
+carbonates weredifferent overNi(100) andNi(110), with
+Ni(110) beingmorereactiveforcarbonate formation than
+Ni(100). GordonandLambert18investigated theadsorption of
+CO2overoxygen-modified Ni(111) andobserved thatCO2
+adsorbed overNiO(111)/Ni(111) andinteracted withtwo
+distinctadsorption sitesthatwereassociated withoxygenlattice
+vacancies incaseoftheoxygenated compound. Thecarbonate
+speciesdecomposed duringthedecomposition oftheoxide.All
+oftheseobservations indicated theeaseofformation, structure
+sensitivity, anddifferences inthestabilityofcarbonates asa
+functionofthechemicalenvironment.
+Inlightoftheaforementioned observations anddiscussion,
+thisstudywasdesigned toinvestigate theeffectofsequential
+H2Odissociation overlow-index Niplanes,resultingindifferent
+chemical environments, onthesurfaceinteraction ofCO2.We
+investigated surfacecarbonate formation arisingoutofO−CO2
+interactions anditsdissociation overNi(100), Ni(110), and
+Ni(111)surfaces,employing DFTcalculations. Thefocuswas
+notonlyontheassessment oftheirrelativestabilities overthe
+threesurfacesbutalsotounravelthedifferences intheirkinetic
+feasibilities, asquantified byenergyprofilesoftheconcerned
+reaction. Ourcomputational analysisconclusively provides
+usefulinformation fortherationaldesignimprovements inCO2
+hydration catalysts, whicharepotentially applicable inlarge-
+scaleCO2capturesystems.
+2.COMPUTATIONAL DETAILS
+Optimizations ofsurfacereactionintermediates andtransition
+statesappearing duringcarbonate formation anddissociation
+wereperformed undertheDFTframework. Thecalculationswereimplemented ontheQUANTUM ESPRESSO package.19
+Weemployed thegeneralized gradient approximation of
+Perdew, Burke,andErnzerh (GGA-PBE) forexchange-
+correlation effects20andtheprojector augmented wave
+(PAW)methodtosolvetheKohn−Sham equations.21A
+planewave cutoffof420eVwasused.Allenergycalculations
+wereaugmented withvanderWaalsDFT-D3 correction.22A
+latticeconstant aof3.52ÅforthebulkFCCNicrystalwasused
+inaccordance withtheexperimental crystallographic data.The
+surfacemodelsconsisted offour-layered Ni(100),Ni(110),and
+Ni(111)slabswitha2×2supercell. Avacuumof15Åseparated
+thesuccessive imagesoftheslabs.Atomicpositions inthetop
+twometallayerswererelaxedtosimulatethesurfaceeffects.
+Convergence criteriaweresetto10−6eVforthetotalenergyand
+10−3eVÅ−1forforcesactingontheatoms.Geometry
+optimizations employed theDavidson iterativediagonalization
+method.Periodicboundary conditions wereappliedinallthree
+directions. AMethfessel−Paxton smearing of0.07eVwasused
+forcalculating theelectronic freeenergy.TheBrillouin-zone
+integration employed a4×4×1Monkhorst−Pack gridforallof
+themodels.
+Transition statesfortheelementary reactions wereidentified
+usingtheclimbing imagenudgedelasticband(CI-NEB)
+technique.23Theminimum energypathsfortheelementary
+reactions weredetermined byusingfiveimages.Badercharge
+analysiswasperformed todetermine thechargetransfers
+betweenthemetalsurfaceandtheadsorbates.24,25Visualization
+ofchargedensitydifferences wasdoneusingVESTA26while
+VisualMolecular Dynamics (VMD)27wasemployed for
+structural visualization andrepresentation. Adsorption energies
+(Eads)ofthesurfacespecieswerecalculated usingeq1.
+E E E Eads surfad sorbate su rf adsorba te = +
+(1)
+where Esurf+adsorbate istheenergyofthesurface−adsorbate(s)
+system, Esurfistheenergyofthesurfaceslab,andEadsorbateisthe
+energyoftheisolated,geometry optimized adsorbate(s) inthe
+gasphase.
+Figure 1.CleanNi(100)(a),Ni(110)(b),andNi(111)(c)surfacesconsidered inthisstudy.Differentadsorption sitenotations: A,topsite;B,bridge
+site;C,square4-foldhollowsite;D,3-foldhollowsite;D′,3-foldhollow-up site;E,pseudo-3-fold hollow-up site;F,long-bridge site;G,4-foldhollow-
+upsite;I,hcp-hollow site;I′,fcc-site;J,4-foldhollowsite.Atomic color code: nickel ingreen.TheJournal ofPhysical Chemistry C pubs.acs.org/JPCC Article
+https://doi.org/10.1021/acs.jpcc.5c06540
+J.Phys.Chem.C2025,129,22403−2241122404
+
+3.RESULTS AND DISCUSSION
+Inourcurrentstudy,weconsidered high-symmetry surface
+adsorption sitestoanalyzecarbonate formation overthree
+different Nisurfaces: Ni(100), Ni(110), andNi(111).
+Specifically, weinvestigated thefollowing sitesoneachsurface:
+forNi(100), thetop(A),bridge(B),square4-foldhollow(C),
+and3-foldhollow(D)sites;forNi(110), thetop(A),bridge
+(B),pseudo3-foldhollow(E),longbridge(F),and4-fold
+hollow(G)and3-foldhollow-up (D′)sites;andforNi(111),
+thetop(A),bridge(B),3-foldhcp(I′),and3-foldfcc(I)and4-
+foldhollow-up (J)sites,asshownintheleftpanelsofFigure1.
+Thesesitesareexpected toinfluence surfaceadsorption and
+reactivity, asexploredinourstudy.Thefrontviewsofthethree
+low-index Nisurfacesarealsodepictedintherightpanelsof
+Figure1.
+3.1. Formation ofCarbonate over Low-Index Ni
+Surfaces. Thesequential dissociation ofH2Oonthreelow-
+indexNisurfaces wasconsidered, andtheformation of
+carbonates viatheinteraction ofCO2andsurfaceOwas
+investigated, asshowninFigure2.Theadsorption ofcarbonate
+ontheselow-index Nisurfacesgivesrisetotheformation of
+differentconfigurations ofsurfacecomplexes. Toachievestable
+adsorption configurations, optimization wasperformed athigh-
+symmetry sites.Table1presentsinformation onthescreening of
+differentadsorption configurations ofcarbonate complexes on
+threeinvestigated Nisurfaces.Thisscreening wasconducted
+underthreedifferentconditions: H-rich,partiallyH-depleted,
+andH-deprived conditions. Thepossibleadsorption config-
+urationsforthecarbonate complexweredetermined bythe
+interaction ofOofcarbonate withthesurfaceNi,resultingin
+fourdistinctconfigurations: monodentate (interaction ofone
+oxygenfromcarbonate withasinglesurfaceNiatom),bidentate
+(interaction oftwoOfromcarbonate withtwosurfaceNi),
+tridentate (interaction oftwoOfromcarbonate withthree
+surfaceNi),andtetra-dentate (interaction oftwoOfrom
+carbonate withfoursurfaceNi).
+Initially,weconsidered theH-richcondition inwhichboth
+theHformedbythedissociation ofH2Oareretainedonthesurfacewhiletheinteraction between CO2andthesurface
+oxygenatomsresultsintheformation ofacarbonate complex
+(seeFigure2).Onallofthesurfaces, itwasobserved that
+carbonate adsorbed inatetradentate configuration. Thiswas
+determined tobetheonlyfeasibleadsorption configuration, as
+theotherthreeconfigurations didnotresultinastable
+configuration. Therefore, thetetradentate configuration pre-
+sentedthepreferred andmoststableadsorption modefor
+carbonate onthesethreeNisurfacesunderH-richconditions.
+Subsequently, afterthesequential removalofoneH,thethree
+Nisurfacestransitioned intoapartiallyH-depleted condition.
+ForNi(100) andNi(111), thepossibleandmostfavorable
+adsorption configurations weretetra-andtridentate, respec-
+tively.However, fortheNi(110)surface,theadsorption ofthe
+carbonate complexoccurredintwodifferentconfigurations: bi-
+andtetradentate. Amongthese,thetetradentate carbonate
+adsorption provedtobemorestablecompared tothebidentate
+configuration, whiletheothertwoconfigurations didnotleadto
+feasiblesurfacecomplex.
+Oncomplete removalofH,thethreeNisurfacesreachedan
+H-deprived condition, asshowninFigure2.ForNi(100)and
+Ni(111)surfaces,thetetradentate configuration remained the
+preferred andmoststableadsorption modeforcarbonate, with
+theotherthreeconfigurations beinginfeasible. FortheNi(110)
+surface,theadsorption ofthecarbonate complexalsotookplace
+intwodifferentconfigurations: bi-andtetradentate. Onceagain,
+thetetradentate carbonate adsorption provedtobethemore
+stableconfiguration compared tobidentate, withtheothertwo
+configurations failingtoresultinfeasibleadsorption. A
+comparative stabilityanalysisforthesetwoconfigurations has
+beenreportedforboththepartiallyH-depleted andH-deprived
+conditions inalatersectionofthestudy,aimedatgainingdeeper
+insightsintothereasonsbehindthehigherstabilityofthe
+tetradentate carbonate configuration overthebidentate one.
+Table1summarizes thefeasibility ofsurfacecarbonate
+formation overthethreeinvestigated planesasobserved in
+thisstudy.
+3.1.1.Comparative Stability ofCarbonate overLow-Index
+NiSurfaces. Weprovideathorough analysisoftheenergetically
+bestadsorption sitesforcarbonate speciesinthetexttofollow.
+Themoststableadsorption configuration forcarbonate over
+Ni(100), Ni(110), andNi(111)surfaceswastetradenate, with
+adsorption energiesof−5.26, −5.54,and−3.55eV,respectively,
+asshowninFigure3.Additionally, theNi(110) bidentate
+configuration wasalsoobserved with −4.71eVofadsorption
+energy.
+Figure 2.Schematic fortheformation ofcarbonate overlow-index Ni
+surfaces. Atomic color code: nickel (green), oxygen (red), hydrogen (blue),
+andcarbon (black).Table1.Surface Configurations Identified fortheFormation
+ofCarbonate onNi(100), Ni(110), andNi(111)a
+aXindicates thatnostablesurfacestructure exists.TheJournal ofPhysical Chemistry C pubs.acs.org/JPCC Article
+https://doi.org/10.1021/acs.jpcc.5c06540
+J.Phys.Chem.C2025,129,22403−2241122405
+
+Inordertoexamine whythetetradentate carbonate
+configuration exhibitsgreaterstabilitycompared tothethree
+low-index surfaces, wecarriedoutfurtheranalysisofthe
+geometric andelectronic structures. Ourstudyinvolved
+thorough investigations intothestructural andenergetic
+parameters alongwithanin-depthexploration oftheelectronic
+properties. Notably, thecarbonate configurations exhibited
+averageNi−Obondlengthsof1.94ÅoverNi(100), 1.95and
+1.82ÅoverNi(110), and2.02ÅoverNi(111). Uponcloser
+examination oftheC−Obondlengthsafteradsorption, itwas
+foundtobeelongated to1.37Åforallthreelow-index Ni
+surfaces, compared totheequilibrium bondlengthoffree
+carbonate, whereC−Obondsmeasure ∼1.28Å.Moredetailson
+thestructural analysisarepresented inTable2.Toprovide
+furtherinsightsintothestabilityofcarbonates overtheNi
+surfaces,projected densityofstates(PDoS)analysisandthe
+differential chargedensitywereplotted,asshowninFigure4.
+Thedifferential chargedensities (Δρ)ofisosurfaces were
+obtained bysubtracting fromthechargedensityofthe
+carbonate-surface systemsthesumofthechargedensities of
+theadsorbate carbonate andtheNisurface,withtheatomic
+positions oftheNisurfaceandofthecarbonate molecule kept
+thesameasthoseofthecarbonate-surface systems.Uponthe
+adsorption ofthecarbonate complex intetradentate config-
+urationsovertheNisurfaces,weobserved anelectrontransfer
+originating fromthesurfaceNiatoms(indicated inyellow)to
+thecarbonate complex(indicated inblue).Whileexamining the
+configurations ofthecarbonate complex(asshowninFigure4),
+onecanobservethattheelectrondepletion regionprimarily
+surrounds theNisurfaceatoms,whiletheelectronaccumulationregionisprimarily aroundtheOatomsofthecarbonate
+complex, whichimplieselectrondensityexchange betweenthe
+OandsurfaceNiatoms.Oxygen-bonded interactions aremore
+forNi(110) andNi(100) compared toNi(111). This
+observation alignswiththegreaterdelocalization oftheO-2p
+statesinthePDoSforNi(110) andNi(100) andlower
+delocalization forNi(111).Thesefactorsprovideanexplanation
+fortheorderofadsorption energies forthetetradentate
+configurations asNi(110)>Ni(100)>Ni(111).
+Thequalitative observations ofFigure4a−f,madeonthebasis
+ofisosurfaces, werefurtherquantified bytheBadercharge
+difference andelectrontransferduringadsorption overthethree
+investigated surfaces.Thechargetransfersforthethreecasesare
+giveninTable3,whichshowsthat,inallcases,chargetransfer
+tookplacefromthesurfacetotheadsorbate. ThistrendinBader
+chargetransferwasfoundtobeconsistent withtheadsorption
+energetics acrossallthreeNisurfaces.Hence,adsorption was
+concluded tobeanelectronic phenomenon, andtheassociated
+energetics wasattributed totheextentofchargetransfer
+between thesurfaceandtheadsorbate. TheNi(110) plane
+exhibited thehighestmagnitude ofchargetransfer,indicating
+themoststableadsorption configuration andstronginteraction
+between thesurfaceNiatomsandtheadsorbed carbonate
+species.Notably,alinearcorrelation wasobserved betweenthe
+adsorption energiesofcarbonate andthecorresponding Bader
+chargetransfer,asshowninFigure4g,providing strongevidence
+thatthestrengthofcarbonate isgoverned bytheextentof
+electrontransferandthattheelectron-transfer processiscrystal-
+plane-dependent.
+Toanalyzethereasonsbehindtheenhanced stabilityofthe
+tetradentate carbonate configuration overthebidentate
+configuration ontheNi(110)surface,weconducted theanalysis
+furtherundertwoconditions: onewherethesurfacewas
+partiallyH-depleted andanotherwhereitwascompletely H-
+deprived. Theaimwastogaindeeperinsightsintothefactors
+contributing tothesuperior stability ofthetetrantate
+configuration compared tothebidentate configuration. The
+detailsareprovided inthesectiontofollow.
+3.1.2.Adsorption ofCarbonate inPartially H-Depleted and
+H-Deprived Conditions onNi(110). Weidentified two
+configurations ontheNi(110)surfaceinpartiallyH-depleted
+conditions fortheadsorption ofthecarbonate complex.Thetwo
+configurations arebi-andtetradentate withtwooxygensof
+carbonate boundtotwosurfaceNiandfoursurfaceNiatoms,
+respectively. Asperthescreening ofdifferentconfigurations of
+carbonate (seeTable1),monodentate andtridentate
+configurations overtheNi(110) facewerenotpossible.
+Adsorption energiesonthetwoconfigurations followed the
+Figure 3.Stableadsorption configurations andtheassociated
+adsorption energies forcarbonate adsorption overlow-index Ni
+surfaces.
+Table2.Adsorption Energetics forStable Adsorption Configurations ofSurface Carbonates overtheInvestigated Low-Index Ni
+Surfaces
+surface adsorption siteaEads(eV) dsurf−ads(Å) bondlength(Å) θO−C−O(degree)
+Ni(100) D −5.26 Ni(1,2)-O2:1.94 C−O1:1.21 O2−C−O3:113.6
+Ni(3,4)-O3:1.94 C−O2,O3:1.37 O1−C−O2:123.2, O1−C−O3:123.2
+B −4.71 Ni1−O2:1.82 C−O1:1.22 O2−C−O3:117.6
+Ni(110) C−O2,O3:1.33 O1−C−O2:121.2, O1−C−O3:121.2
+G −5.54 Ni1−O2:1.95 C−O1:1.20 O2−C−O3:116.6
+Ni(3,4)−O3:1.95 C−O2,O3:1.37 O1−C−O2:121.7, O1−C−O3:121.7
+Ni(111) J −3.55 Ni(1,4)−O2:2.05 C−O1:1.20 O2−C−O3:113.4
+Ni(2,3)−O3:2.02 C−O2,O3:1.37 O1−C−O2:123.3, O1−C−O3:123.2
+aPleaserefertoFigure1foradsorption sitedetails.TheJournal ofPhysical Chemistry C pubs.acs.org/JPCC Article
+https://doi.org/10.1021/acs.jpcc.5c06540
+J.Phys.Chem.C2025,129,22403−2241122406
+
+ordertetrantate (−5.46eV)>bidentate (−4.71eV)(seeFigure
+5a).Hence,tetradentate carbonate wasthemostfavored
+adsorption siteonNi(110)inpartiallyH-depleted conditions.
+Tetradentate andbidentate carbonates adsorbed withaverage
+bondlengthsofNi−Oas1.94and1.82Å,respectively, andon
+observing thebondlengthofC−Oafteradsorption forthetwo
+configurations, itwasfoundtobeelongated to1.37Å(tetra-
+dentate) and1.33Å(bidentate) whencompared withthe
+equilibrium bondlengthoffreecarbonate. Thetetradentate
+configuration wasmorestablethanbidentate, whichwasfurther
+confirmed usingPDoSanddifferential chargedensityplots,as
+showninFigure5b−e.
+Upontheadsorption ofcarbonate complex intetra-and
+bidentate configurations, electron transfers originated from
+surfaceNiatoms(indicated inyellow)tothecarbonate complex
+(indicated inblue)andtheretainedH,whichisalsoconsistent
+withmagnitude ofBaderchargetransferfromfourNisurface
+atomstothetwoOatomsofcarbonate complex. Chargealso
+transferred totheHthatwasretainedontheNi(110)surface
+(1.21 |e|and0.88 |e|,respectively). Examining thetwounique
+configurations ofcarbonate complex, itcanbeseenthatthe
+electrondepletion regionwasprimarily aroundtheNisurface
+atoms,theelectronaccumulation regionwasprimarily around
+theOofthecarbonate complexandtheHretainedontheNi
+surface,andtheelectron accumulation wasmoreforthe
+tetradentate carbonate configuration thanthebidentate. This
+observation wasconsistent withPDoSoftheO-2pstate
+broadening anddelocalization. Themagnitude ofBadercharge
+distribution alsocorroborated thereasonbehindtheorderofthe
+adsorption energiesforthesetwoconfigurations astetradentate
+(−5.46eV)>bidentate (−4.71eV).
+UnderH-deprived conditions, observations similartothose
+underpartialH-depleted conditions wereobserved. Two
+distinctadsorption sitesontheNi(110) surfaceforthecarbonate complex, characterized asbi-andtetra-dentate,
+wereobservedinthiscasealso,andmonodentate andtridentate
+configurations werenotfeasible.Theadsorption energiesforthe
+feasibleconfigurations exhibited thesametrendandverysimilar
+energetics: tetradentate (−5.54eV)>bidentate (4.71eV)(refer
+toFigure5f).Thestructural features,asqualifiedbythebond
+distances, werealsosimilartoaverageNi−Obondlengthsof
+1.95and1.82Å,respectively, andC−Obondlengthsafter
+adsorption as1.37Å(tetra-dentate) and1.33Å(bidentate).
+PDoSandelectrondensitydifference plots,asdeveloped for
+partially depleted conditions, werealsodeveloped forH-
+deprived conditions, asshowninFigure5g−j.Thereasons
+behindthestabilityoftetradentate surfacecarbonate remained
+thesameforbothsurfaceconditions. Thequantified charge
+transfers andelectrondensityvisualization conveythesame
+phenomena, indicating theprimarysurfaceinteractions viathe
+oxygensofthecarbonate, andtheprotonation stateplaysa
+secondary roleinstabilization.
+Theinfluence ofchargetransferontheadsorption energetics
+andsurfacestabilitywasestablished fordiscriminating the
+behaviors ofthebi-andtetradentate configurations also.The
+quantified chargetransferandthecorrelation ofadsorption
+energetics withchargetransferareshowninFigure5k.The
+tetradentate configuration exhibited ahighermagnitude of
+Baderchargedifference thanthebidentate configuration under
+partiallyH-depleted aswellasH-deprived conditions.
+3.2. Mechanistic Insights into Surface Carbonate
+Formation. Inourprevious works,wehavereported the
+biomimetic CO2hydration reactionmechanism overlow-index
+Niplanes.6,7CO2interactswithdeprotonated H2Oleadingto
+surfaceinteraction OH−CO2.Thisinteraction resultsinthe
+formation ofbicarbonate ionsasthefinalproduct,withthe
+surfaceOHgroupservingastheactivecenter.However, the
+sequential dissociative adsorption ofH2Oacrossthreelow-index
+Nisurfacespresentsthepotential fortheO−CO 2interactions,
+withthesurfaceOgroupservingastheactivecenter.
+Toexplorethispossibility indetail,weinvestigated the
+potential energyprofilesassociated withsurfacecarbonate
+formation throughtheinteraction ofCO2withthesurfaceOon
+cleanNi(100), Ni(110), andNi(111)surfaces.Theformation
+ofoxygenated surfacesoccursthroughatwo-stepprocess.First,
+H2Odissociates intoOHandH.Subsequently, thesequential
+Figure 4.PDoSforNi(100)(a),Ni(110)(b),andNi(111)(c)andthecorresponding electrondensitydifference maps(d−f,respectively) for
+carbonate-surface atoms.The0eVlinedenotestheFermilevel.Bluerepresents anelectron-loss regionandyellowrepresents anelectronaccumulation
+region.(g)Thelinear-scaling relationship betweentheadsorption energyandthetransferred Badercharge(in|e|)fortheadsorbed carbonate.
+Table3.Bader Charge Difference (|e|)forCarbonate
+Adsorption ontheInvestigated Low-Index NiSurfaces
+surface
+speciessurface
+planeBadercharge(|e|)(chargetransferfromsurfaceto
+adsorbate)
+Ni(100) 1.17
+CO32−Ni(110) 1.23
+Ni(111) 1.09TheJournal ofPhysical Chemistry C pubs.acs.org/JPCC Article
+https://doi.org/10.1021/acs.jpcc.5c06540
+J.Phys.Chem.C2025,129,22403−2241122407
+
+dissociation ofsurfaceOH,alongwiththeotherHretainedon
+thesurface,leadstotheformation ofthreedistinctsurface
+conditions, asshowninFigure2.Thesesurfaceshavebeendealtwithintheprevioussectionsandweexplicitly describetheir
+characterization asfollows:
+Figure 5.Analysisofbi-andtetradentate adsorption ofcarbonate overtheNi(110)surface.(a)Optimized adsorption configurations andadsorption
+energies.(b)PDoSfortetradentate adsorption. (c)PDoSforbidentate adsorption. (d)Electrondensitydifference mapfortetradentate adsorption.
+(e)Electrondensitydifference mapforbidentate adsorption undertheH-depleted state.(f)Optimized adsorption configuration andadsorption
+energies.(g)PDoSfortetradentate adsorption. (h)PDoSforbidentate adsorption (i)Electrondensitydifference mapfortetradentate adsorption. (j)
+Electrondensitydifference mapforbidentate adsorption undertheH-deprived state.(k)Variation oftheadsorption energywithchargetransferfor
+differentsurfacecarbonates.
+Figure 6.Comparative energyprofilesforcarbonate formation overNi(100), Ni(110), andNi(111)surfacesunderH-richcondition (a)andthe
+corresponding optimized geometries (b).TheJournal ofPhysical Chemistry C pubs.acs.org/JPCC Article
+https://doi.org/10.1021/acs.jpcc.5c06540
+J.Phys.Chem.C2025,129,22403−2241122408
+
+H-richcondition: Thesequential dissociation ofsurface
+OHonthesurfaceandtheretention ofallhydrogens on
+thesurfaceleadtotheH-richsurface.
+PartiallyH-depleted condition: Partialreleaseofhydro-
+genfromthesurfaceresultsinpartiallyH-depleted
+surfaces.
+H-deprived condition: Theoxygenated surface,where
+interactions withCO2areonlypossiblethroughoxygens
+withnoHonthesurfaces.
+Weanalyzethesethreesurfaceconditions withreference to
+theirsurfacecarbonate formation activities, asdescribed below.
+3.2.1.Case1:H-RichCondition. Thepartialdissociation of
+H2OintoOHandHisobservedtobeanactivatedprocess,with
+oneO−HbondinH2Oadsorbed onthetopsite(IM1)
+elongating toformthetransition structure referredtoasTS1
+(Figure6a).ForNi(110), thissurfacedissociation ofH2O
+necessitates anactivation energyof0.18eV,whichisthelowest
+amongthethreesurfacesystemsinvestigated inthisstudy.On
+theotherhand,Ni(100)requiresanactivation energyof0.38
+eV,andNi(111)requiresasignificantly higheractivation energy
+of1.00eV.Following thepartialdissociation ofH2Otoyield
+surfacespeciesOHandH(IM2),thesystemisfurther
+stabilized. TheenergiesforIM2are−1.23eVforNi(110),
+−0.77eVforNi(100), and−0.61eVforNi(111), allrelativeto
+thedatum.Itisimportant tonotethatHisretainedonthe
+surfaceinthisanalysis.Thenextstepinvolvesthesequential
+dissociation oftheOHgroupintosurfaceionsofOandH,
+resulting inIM3surfacespecies.Theactivation barrierfor
+scissionoftheO−HbondintheOHgroup(TS2)is0.72eVfor
+bothNi(110)andNi(100), whileNi(111)exhibitsthehigher
+barrierof1.08eV.Thissequential dissociation ofsurfaceOH
+leadstoIM3,whichcomprises atomicOandH,alongwiththe
+otherHretained onthesurface.Thisresultsinsystem
+stabilization, withenergiesof−0.78eVforNi(110), −0.61eV
+forNi(100),and−0.66eVforNi(111),asshowninFigure6a.It
+isworthnotingthattheactivation barriersforOHsplittingare
+highercompared tothoseforH2Osplitting.
+Theformation oftheIM4surfacespeciesoccursthroughthe
+interaction ofCO2withsurfaceOonallthreeNisurfaces,
+resultinginalinearCO2molecule withanO−C−O bondangle
+closeto180°.Theadsorbed CO2isorientedtowardthesurface
+oftheOtointeractprimarilywithitratherthandirectlywiththe
+surfaceoftheNi.Thisinteraction leadstoaslightstabilization of
+thesystem,withenergydecreases of0.45,0.35,and0.29eVfor
+Ni(110),Ni(100),andNi(111),respectively. Thissuggeststhat
+theinteraction ofCO2withtheH-richO-ladensurfaceis
+energetically feasible,withsignificant differences inthesystem
+stabilityamongthethreesurfaces.Inthetransition structure
+TS3,CO2undergoes bending, withtheactivation barrierfor
+CO2bendingbeingthelowestat0.29eVforNi(110), while
+Ni(100)andNi(111)exhibitrelativelyhighervaluesof1.09and
+1.16eV,respectively. However, thecarbonate complexes (IM5)
+displayconsiderable differences instabilityamongthethreelow-
+indexNisurfaces,withthecarbonate complexoverNi(110)
+being0.65eVmorestablethanthatoverNi(100)and0.30eV
+morestablethanthatoverNi(111).Theoptimized structures of
+allsurfaceintermediates andtransition statesofthispathwayare
+showninFigure6b.
+3.2.2.Case2:Partially H-Depleted Condition. Thepotential
+energyprofilesforcarbonate formation overtheinvestigated
+low-index NisurfacesshowninFigure6acorrespond tothe
+phenomena onanH-richsurface.WecarriedoutthesameanalysisunderthepartiallyH-depleted condition. Thepotential
+energyprofilesalongwiththeoptimized structures canbefound
+inFigureS1(seetheSupporting Information). Thereference for
+theenergyprofilesforFigures6andS1arethesame,andhence,
+thefirstthreeelementary steps(IM1toIM3)ofthereactionin
+thetwocaseswereidentical.
+Theadsorption ofHonNi(100), Ni(110), andNi(111)
+surfacesexhibited remarkably strongbonding,requiring energy
+inputsof1.79,2.13,and2.00eV,respectively, foritsrelease
+(referred toasIM3′).Itisimportant tonotethattheenergy
+requiredforthisprocessisdependent onthepHandsolventin
+thesystem.Therefore, atthisstageoftheanalysis,thisenergy
+valueshouldnotbeattributed tosignificant importance.
+Further,whileproceeding fromIM3toIM3′,thehydrogen to
+beabstracted fromthesurfaceisunderthestronginfluence of
+surface-adsorbed oxygenspecies.Therefore, theassociated
+energetics alsocorrespond totheenergyrequirement to
+overcome theelectrostatic interactions withoxygen,whichis
+largerthanthatrequiredoveracleanandneutralsurface.The
+formation oftheIM4′surfacespeciesoccurred throughthe
+interaction ofCO2withsurfaceOonallthreeNisurfaces,
+resulting inalinearCO2molecule. Theadsorbed CO2was
+oriented towardsurface-bound O,primarily engaging in
+interactions withOratherthandirectinteractions withthe
+surfaceNi.Theorientation ofthesurface-adsorbed CO2species
+decreased theenergyofthesystem,resulting inhigher
+stabilization relativetotheprevious surfaceconfiguration of
+IM3′.Quantitatively, asseenfromtheenergydiagram, IM4′
+showedhigherstabilityby0.44,0.35,and0.33eVforNi(100),
+Ni(110),andNi(111),respectively, whencompared toIM3′.In
+thetransition structureTS3′,CO2underwent bending,withthe
+activation barrierforCO2bendingbeingthelowestat0.25eV
+overNi(110).Incontrast,Ni(100)exhibited ahigheractivation
+barrierof1.11eV,andNi(111)displayed anintermediate value
+of0.75eV.Itisevidentthattheactivation barrieroverNi(111)
+wasrelatively lowerthanthatofNi(100)underpartiallyH-
+depleted conditions, whichcontrasts withthetrendobserved
+underH-richconditions. However, thecarbonate complexes
+(IM5′)exhibited significant differences instabilityamongthe
+threelow-index Nisurfaces,withthecarbonate complexoverthe
+Ni(110)surfacebeingmorestableby0.82and1.13eVwhen
+compared toNi(100)andNi(111)surfaces,respectively.
+3.2.3.Case3:H-Deprived Condition. Thecomplete removal
+ofHfromthethreelow-index Nisurfacesresultsinan
+oxygenated surfacewhereinteractions withCO2canoccur
+exclusively throughthepresenceofO,incontrasttobiological
+processes whereinteractions primarily involvehydroxylgroups
+(OH).Potential energyprofilesforcarbonate formation onthe
+H-deprived, oxygenated surfacearepresented inFigureS2(see
+Supporting Information). Thereference fortheenergyprofilesis
+consistent withthatshowninFigures6andS1,andthefirst
+threeelementary steps(IM1toIM3′)ofthereactioninallof
+thesecasesareidenticaltothoseshowninFigure6.InFigureS2,
+thelargestepcorresponds tothereleaseofthelastHfromtheNi
+surfaces(IM3″),whichisanenergy-intensive stepsimilarto
+IM3′inFigureS1.Thelinearadsorption ofCO2(IM4″)is
+energetically favored,resultinginanenergyreleaseof0.35eVfor
+Ni(100), 0.43eVforNi(110), and0.52eVforNi(111). The
+activation barrierforthebendingofCO2(TS3″)isthelowest
+forNi(110), withavalueof0.28eV,whereasNi(100)and
+Ni(111)exhibitrelatively highervaluesof0.94and1.00eV,
+respectively. Importantly, theproductcarbonate ismorestableTheJournal ofPhysical Chemistry C pubs.acs.org/JPCC Article
+https://doi.org/10.1021/acs.jpcc.5c06540
+J.Phys.Chem.C2025,129,22403−2241122409
+
+thanthepreceding intermediate (IM5″) overNi(110)
+compared tothoseoverNi(100)andNi(111).
+Ouranalyseswereconducted underthreeconditions: H-rich,
+partiallyH-depleted, andH-deprived. Inallcases,weobserved
+thattheactivation barriersforCO2bendingarethelowestfor
+Ni(110)compared totheothersurfaces,andtheproductsurface
+carbonate ismorestablethanthepreceding intermediate. A
+comparison oftheenergyprofilesforthethreelow-index Ni
+surfacesinFigure6andFiguresS1,S2highlights thatsurface
+carbonate formation isstructure-sensitive, andproduct
+selectivity canbeinfluenced duringtheinitialstepsofOHand
+Hspeciesformation.
+3.3. Mechanistic Insights into Surface Carbonate
+Dissociation. Theforegoing discussion established thesurface
+sensitivity ofcarbonate formation, aswellassurface-dependent
+stabilityofcarbonates overthethreeinvestigated Niplanes.We
+nowestablish thekineticstabilityofthesurfacecarbonate
+species,asassessedbytheenergybarrierforitsdissociation. The
+surfacecarbonate maydissociate viaC−Obondscissionfrom
+CO2andsurfaceatomicOspecies,asdepictedinFigure7a.We
+havereportedacomprehensive studyonthethermodynamics of
+surfacespeciesoverlow-index Niplanesasgenerated byH2O
+andCO2duringcatalyticprocesses inoneofourprevious
+studies.28Thekineticstability andfeasibility ofsurface
+carbonate remained elusive,andcarbonate isoftenashadow
+speciesinsuchsystems; therefore, thepresentstudywas
+designed tounderstand andfocusonthesurface-plane-
+dependent kineticstabilityofsurfacecarbonate. Wehave
+considered themoststableconfiguration ofcarbonate adsorbed
+overallthreelow-index Nisurfaces.Thetetradentate adsorption
+ofCO32−wastheinitialstatewhilethefinalstatewasalinear
+CO2-likestructure andadsorbed atomicO.Theschemein
+Figure7ashowstheinvestigated pathwayinwhichadsorbed
+carbonate oxygensandcarbonaredenotedasO1,O2,O3,and
+C.Theonlypossiblescissions weretheC−O2andC−O3
+bonds,whichareequivalent innature,soC−O3bondscissionwasinvestigated, whichresultedintheformation ofalinearCO2,
+withanO−C−O bondanglecloseto180°,andadsorbed atomic
+O,asillustrated intheoptimized structures oftheinsetofFigure
+7b.Theactivation barrierforthescissionoftheC−O3bondwas
+0.68eVforbothNi(110)andNi(100),whileNi(111)exhibited
+abarrierof0.31eV,asshowninFigure7b,indicating theeaseof
+carbonate scissionovertheNi(111)plane.
+4.CONCLUSIONS
+OurvanderWaals-corrected DFTcalculations provided
+insightsintosurfacecarbonate formation anddissociation over
+Ni(100), Ni(110), andNi(111). Thefindingsrevealthatthe
+identityoftheNisurfacehasaprofound influence onthe
+stabilityaswellasthereactionenergetics ofsurfacecarbonate
+formation. Following arethekeyconclusions drawnfromour
+computational analysisoftheinteraction ofsurfaceOwithCO2
+ontheinvestigated surfaces:
+Tetradentate surfacecarbonate isthemoststablesurface
+configuration whencompared totheotherconfigurations.
+Detailed analysis,including PDoSandchargedensity
+difference, revealedthatadsorption isaccompanied by
+largeelectronic structure changesandelectrondensity
+redistributions.
+Theenergetics ofthereaction isinfluenced bythe
+successive removalofsurfaceH.AsHwasremovedfrom
+theNisurfaces,thecomplexation energyofcarbonate
+changedwiththeidentityofthesurfaceplane.
+Activation barriersexhibited highsensitivity tothesurface
+structure, withthebarriersfollowing theorderNi(110)<
+Ni(100)<Ni(111)forelementary stepssuchassurface
+H2Odissociation, surfaceOHdissociation, andcarbonate
+complexation.
+Comparative energyprofilesindicatethedifferences in
+thesurfacestabilities ofthethreestudiedNisurfaces
+duringcarbonate formation, withthesurfacecarbonate
+beingthemoststableovertheNi(110) planeandits
+dissociation beingthemostfavoredovertheNi(111)
+plane.
+■ASSOCIATED CONTENT
++sıSupporting Information
+TheSupporting Information isavailable freeofchargeat
+https://pubs.acs.org/doi/10.1021/acs.jpcc.5c06540.
+Comparative energyprofilesforcarbonate formation over
+Ni(100), Ni(110), andNi(111) surfaces underH-
+deprived condition andthecorresponding optimizedg-
+eometries (FigureS1);andcomparative energyprofiles
+forcarbonate formation overNi(100), Ni(110), and
+Ni(111) surfacesunderH-depleted condition andthe
+corresponding optimized geometries (FigureS2)(PDF)
+■AUTHOR INFORMATION
+Corresponding Author
+ParagA.Deshpande −Computational Molecular Research
+Laboratory, Department ofChemical Engineering, Indian
+Institute ofTechnology Jodhpur, Jodhpur 342030, India;
+orcid.org/0000-0002-2445-5873; Phone:(+91)291280
+1726;Email:parag@iitj.ac.in
+Figure 7.Schematic representation ofthedissociation ofsurface
+carbonate overnickel(a)alongwiththeassociated activation barriers
+(b).Thepathways areshownintheinset. Atomic color code: nickel
+(green), oxygen (red), hydrogen (blue), andcarbon (black).TheJournal ofPhysical Chemistry C pubs.acs.org/JPCC Article
+https://doi.org/10.1021/acs.jpcc.5c06540
+J.Phys.Chem.C2025,129,22403−2241122410
+
+Author
+SarojKumari −Quantum andMolecular Engineering
+Laboratory, Department ofChemical Engineering, Indian
+Institute ofTechnology Kharagpur, Kharagpur 721302, India
+Complete contactinformation isavailableat:
+https://pubs.acs.org/10.1021/acs.jpcc.5c06540
+Notes
+Theauthorsdeclarenocompeting financialinterest.■ACKNOWLEDGMENTS
+Theauthorsgratefully acknowledge theParamShakti-National
+Supercomputing Mission(NSM),Government ofIndia,for
+providing thecomputational resources atIndianInstituteof
+Technology, Kharagpur.■REFERENCES
+(1)Romanov, V.;Soong,Y.;Carney,C.;Rush,G.E.;Nielsen,B.;
+O’Connor, W.Mineralization ofcarbondioxide:aliterature review.
+ChemBioEng. Reviews 2015, 2,231−256.
+(2)Lackner, K.S.;Brennan, S.Envisioning carboncaptureand
+storage:expanded possibilities duetoaircapture,leakageinsurance,
+andC-14monitoring. Climatic Change 2009, 96,357−378.
+(3)Lackner,K.S.;Brennan, S.;Matter,J.M.;Park,A.-H.A.;Wright,
+A.;vanderZwaan,B.Theurgencyofthedevelopment ofCO2capture
+fromambientair.Proc. Natl. Acad. Sci.U.S.A.2012, 109,13156−
+13162.
+(4)Verma,M.;Deshpande, P.A.Computational insightsinto
+biomimetic CO2hydration activitiesof(poly)borate ions. J.Phys. Chem.
+C2017, 121,17197−17206.
+(5)Verma,M.;SravanKumar,K.;Deshpande, P.A.Computational
+insightsintotheactivityoftransition metalsforbiomimetic CO2
+hydration. J.Phys. Chem. C2016, 120,5577−5584.
+(6)Kumari,S.;Deshpande, P.A.OHandOmediated interaction of
+CO2withNi(110)surface,anditsimplications onbiomimetic CO2
+hydration. Chem. Eng. Sci.2021, 246,No.116872.
+(7)Kumari,S.;Deshpande, P.A.CrystalFaceEffectsinNi-Catalyzed
+Biomimetic CarbonDioxideHydration. J.Phys. Chem. C2023, 127,
+19509−19519.
+(8)Mohsenzadeh, A.;Bolton,K.;Richards, T.DFTstudyofthe
+adsorption anddissociation ofwateronNi(111),Ni(110)andNi
+(100)surfaces. Surface science 2014, 627,1−10.
+(9)Seenivasan, H.;Jackson,B.;Tiwari,A.K.Waterdissociation onNi
+(100),Ni(110),andNi(111)surfaces:Reaction pathapproach to
+modeselectivity. J.Chem. Phys.2017, 146,No.074705.
+(10)Mohsenzadeh, A.;Richards, T.;Bolton,K.DFTstudyofthe
+watergasshiftreactiononNi(111), Ni(100)andNi(110)surfaces.
+Surf. Sci.2016, 644,53−63.
+(11)Catapan, R.C.;Oliveira,A.A.;Chen,Y.;Vlachos,D.G.DFT
+studyofthewater−gas shiftreactionandcokeformation onNi(111)
+andNi(211)surfaces. J.Phys. Chem. C2012, 116,20281−20291.
+(12)Wang,S.-G.;Cao,D.-B.;Li,Y.-W.;Wang,J.;Jiao,H.
+Chemisorption ofCO2onnickelsurfaces. J.Phys. Chem. B2005,
+109,18956−18963.
+(13)Solymosi, F.;Knozinger, H.Infraredspectroscopic studyofthe
+adsorption andreactions ofCO2onK-modified Rh/SiO2.J.Catal.
+1990, 122,166−177.
+(14)Jin,W.;Wang,Y.;Liu,T.;Ding,C.;Guo,H.CO2chemisorption
+anddissociation onflatandsteppedtransition metalsurfaces. Appl. Surf.
+Sci.2022, 599,No.154024.
+(15)Zhu,L.;Liu,C.;Wen,X.;Li,Y.-W.;Jiao,H.Coverage dependent
+structure andenergyofwaterdissociative adsorption oncleanandO-
+pre-covered Ni(100)andNi(110). Catalysis Science &Technology
+2019, 9,4725−4743.
+(16)Zhu,L.;Liu,C.;Wen,X.;Li,Y.-W.;Jiao,H.Molecular or
+dissociative adsorption ofwateroncleanandoxygenpre-covered
+Ni(111)surfaces. Catal. Sci.Technol. 2019, 9(1),199−212.(17)Behm,R.;Brundle,C.Ontheformation andbondingofasurface
+carbonate onNi(100). Surface science 1991, 255,327−343.
+(18)Gordon, D.E.;Lambert, R.M.CO2adsorption onoxygen-
+modified Ni(111). Surf. Sci.1993, 287−288, 114−118.
+(19)Giannozzi, P.;Baroni,S.;Bonini,N.;Calandra, M.;Car,R.;
+Cavazzoni, C.;Ceresoli,D.;Chiarotti, G.L.;Cococcioni, M.;Dabo,I.;
+etal.QUANTUM ESPRESSO: amodularandopen-source software
+projectforquantum simulations ofmaterials. J.Phys.: Condens. Matter
+2009, 21,No.395502.
+(20)Hammer, B.;Hansen,L.B.;No̷rskov,J.K.Improved adsorption
+energetics withindensity-functional theoryusingrevisedPerdew-
+Burke-Ernzerhof functionals. Phys. Rev.B1999, 59,7413.
+(21)Blöch,P.E.Projector augmented-wave method. Phys. Rev. B
+1994, 50,17953.
+(22)Grimme, S.;Antony,J.;Ehrlich,S.;Krieg,H.Aconsistent and
+accurate abinitioparametrization ofdensityfunctional dispersion
+correction (DFT-D) forthe94elements H-Pu. J.Chem. Phys.2010,
+132,154104.
+(23)Henkelman, G.;Uberuaga, B.P.;Jónsson,H.Aclimbingimage
+nudgedelasticbandmethodforfindingsaddlepointsandminimum
+energypaths. J.Chem. Phys.2000, 113,9901−9904.
+(24)Bader,R.F.Atomsinmolecules. Acc.Chem. Res.1985, 18,9−15.
+(25)Henkelman, G.;Arnaldsson, A.;Jónsson,H.Afastandrobust
+algorithm forBaderdecomposition ofchargedensity. Comput. Mater.
+Sci.2006, 36,354−360.
+(26)Momma, K.;Izumi,F.VESTA3forthree-dimensional
+visualization ofcrystal,volumetric andmorphology data. J.Appl.
+Crystallogr. 2011, 44,1272−1276.
+(27)Humphrey, W.;Dalke,A.;Schulten, K.;etal.VMD:visual
+molecular dynamics. J.Mol. Graphics 1996, 14,33−38.
+(28)Kumari,S.;Deshpande, P.A.Densityfunctional theoryanalysis
+ofthestabilityofH2OandCO2-derived surfacespeciesoverlow-index
+Nifacets. Appl. Surf. Sci.2024, 669,No.160375.TheJournal ofPhysical Chemistry C pubs.acs.org/JPCC Article
+https://doi.org/10.1021/acs.jpcc.5c06540
+J.Phys.Chem.C2025,129,22403−2241122411
+

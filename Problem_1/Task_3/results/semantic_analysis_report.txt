@@ -1,0 +1,98 @@
+==============================================================================
+SEMANTIC ANALYSIS REPORT — Word2Vec Embeddings
+==============================================================================
+Corpus sentences : 1123610
+Vocabulary size  : 13766
+Embedding dim    : 100
+
+==============================================================================
+SECTION 1 — NEAREST NEIGHBOURS  (cosine similarity, top-5)
+==============================================================================
+
+  Query: 'research'
+  Rank  Neighbour                    Cosine
+  ──────────────────────────────────────────
+  1     students                     0.9912
+  2     faculty                      0.9908
+  3     campus                       0.9904
+  4     this                         0.9900
+  5     program                      0.9893
+
+  Query: 'student'
+  Rank  Neighbour                    Cosine
+  ──────────────────────────────────────────
+  1     permanent                    0.9955
+  2     technology                   0.9953
+  3     initiative                   0.9953
+  4     visit                        0.9942
+  5     young                        0.9925
+
+  Query: 'phd'
+  Rank  Neighbour                    Cosine
+  ──────────────────────────────────────────
+  1     possibility                  0.9966
+  2     know                         0.9963
+  3     assisting                    0.9942
+  4     lost                         0.9941
+  5     invites                      0.9939
+
+  Query: 'exam'
+  Rank  Neighbour                    Cosine
+  ──────────────────────────────────────────
+  1     physica                      0.9974
+  2     barbara                      0.9970
+  3     ups                          0.9950
+  4     lqfo                         0.9948
+  5     shreyas                      0.9941
+
+==============================================================================
+SECTION 2 — WORD ANALOGY EXPERIMENTS
+==============================================================================
+  Formula (Mikolov et al.): D ≈ B − A + C   where  A:B :: C:D
+
+  undergraduate:postgraduate::btech:?
+  Rank  Predicted                     Score
+  ──────────────────────────────────────────
+  1     recognition                  0.9987
+  2     theoretical                  0.9965
+  3     thursday                     0.9955
+  4     polymer                      0.9955
+  5     localization                 0.9948
+
+  ug:pg::btech:?
+  Rank  Predicted                     Score
+  ──────────────────────────────────────────
+  1     channel                      0.9967
+  2     synthesis                    0.9934
+  3     literature                   0.9914
+  4     overview                     0.9910
+  5     out                          0.9909
+
+  engineering:design::mathematics:?
+  Rank  Predicted                     Score
+  ──────────────────────────────────────────
+  1     spgc                         0.9840
+  2     architecture                 0.9839
+  3     beginners                    0.9830
+  4     synthetic                    0.9820
+  5     funding                      0.9811
+
+  students:course::faculty:?
+  Rank  Predicted                     Score
+  ──────────────────────────────────────────
+  1     lie                          0.9944
+  2     rounds                       0.9935
+  3     joint                        0.9934
+  4     economic                     0.9926
+  5     mc                           0.9922
+
+  research:phd::teaching:?
+  Rank  Predicted                     Score
+  ──────────────────────────────────────────
+  1     tmds                         0.9923
+  2     dallas                       0.9910
+  3     row                          0.9903
+  4     corporations                 0.9896
+  5     tkz                          0.9892
+
+==============================================================================
